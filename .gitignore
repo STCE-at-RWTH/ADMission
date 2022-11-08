@@ -1,0 +1,64 @@
+# ignore hidden files
+.*
+!.gitlab-ci.yml
+!.gitattributes
+!.gitignore
+!.clang-format
+
+# ignore latex build files
+*.aux
+*.bbl
+*.blgs
+*.fls
+*.log
+*.out
+*.synctex
+*.synctex.gz
+*.toc
+*.lol
+*.lof
+*.lot
+
+# xelatex build files
+*.xdv
+
+# ignore output pdf
+*.pdf
+
+# skip MacOS system data
+*.DS_Store
+
+# skip VIM editor files
+*.swp
+*.swo
+
+# ignore TikzEdt helper files
+*.preview.tex
+*.preview.pdf
+*.preview_BB.txt
+
+# ignore Latexian (MacOS) helper files
+*LatexianTemp*
+
+# ignore nomenclature files
+*.ilg
+*.nlo
+*.nls
+
+# ignore breamer helper files
+*.nav
+*.snm
+*.vrb
+
+# ignore build files
+build
+build*/*
+*.mod
+*.o
+Makefile.*.gen
+
+# ignore python cache files
+*.pyc
+
+# Ignore doxygen docs
+docs/doxygen/html
