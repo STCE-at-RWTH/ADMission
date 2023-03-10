@@ -1,61 +1,59 @@
-#ifndef MIN_EDGE_FILL_IN_OPTIMIZER_HPP
-#define MIN_EDGE_FILL_IN_OPTIMIZER_HPP
+#ifndef ADM_INC_OPTIMIZERS_MIN_EDGE_FILL_IN_OPTIMIZER_HPP_
+#define ADM_INC_OPTIMIZERS_MIN_EDGE_FILL_IN_OPTIMIZER_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/DAG.hpp"
+#include "misc/doxygen.hpp"
 #include "operations/op_sequence.hpp"
 #include "optimizers/min_fill_in_optimizer.hpp"
-#include "factory.hpp"
+#include "util/factory.hpp"
 
-// **************************** Header contents ***************************** //
+#include <map>
+
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \addtogroup Optimizers
- * @{
- */
+DOXYGEN_MODULE_BEGIN(Optimizers)
 
-/**\brief MinEdgeFillInOptimizer that executes those eliminations
+/******************************************************************************
+ * @brief MinEdgeFillInOptimizer that executes those eliminations
  *        that generate the least fill-in edges.
- */
+ ******************************************************************************/
 class MinEdgeFillInOptimizer : public MinFillInOptimizer
 {
  public:
-  /// Make the base class available.
+  //! Make the base class available.
   typedef MinFillInOptimizer Base;
-  /// Make the transitive base class available.
+  //! Make the transitive base class available.
   typedef typename Base::AbstractBase AbstractBase;
 
-  ///\name Constructor and Destructor.
-  ///@{
+  //! Default constructor of the MinEdgeFillInOptimizer.
   MinEdgeFillInOptimizer() = default;
 
-  virtual ~MinEdgeFillInOptimizer() {}
-
-  ///@}
+  //! Default destructor of the MinEdgeFillInOptimizer.
+  virtual ~MinEdgeFillInOptimizer() = default;
 
  protected:
-  ///\name Internal solution helpers.
-  ///@{
-  /**\brief Returns the elimination generating least fill in.
-   *
-   * @param[in] g Reference to the graph.
-   * @returns OpSequence containing the Op.
-   */
+  // ---------------------- Internal solution helpers ----------------------- //
+  DOXYGEN_GROUP_BEGIN(Internal solution helpers, )
+
+  //! Returns the elimination generating least fill in.
   virtual OpSequence get_min_fill_in_elim_on_any_graph(
-      const admission::FaceDAG&) const override;
-  ///@}
+      const admission::FaceDAG&) const override final;
+
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
 };
 
-ADM_REGISTER_TYPE(MinEdgeFillInOptimizer, MinEdgeFillInOptimizer);
+ADM_REGISTER_TYPE(GreedyMinFill, MinEdgeFillInOptimizer)
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(Optimizers)
 
 }  // end namespace admission
 
-#endif  // MIN_EDGE_FILL_IN_OPTIMIZER_HPP
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_OPTIMIZERS_MIN_EDGE_FILL_IN_OPTIMIZER_HPP_

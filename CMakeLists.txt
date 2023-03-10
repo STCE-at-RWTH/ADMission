@@ -22,10 +22,19 @@ cmake_policy(SET CMP0057 NEW)
 # Project information
 # **************************************************************************** #
 
+# Project description
+set(ADM_PROJECT_DESCRIPTION "Algorithmic Differentiation Mission (ADMission)")
+
+# Project version
+set(ADM_VER_MAJOR 0)
+set(ADM_VER_MINOR 1)
+set(ADM_VER_PATCH 0)
+set(ADM_VERSION "${ADM_VER_MAJOR}.${ADM_VER_MINOR}.${ADM_VER_PATCH}")
+
 project(ADMission
-  LANGUAGES CXX
-  DESCRIPTION "Algorithmic Differentiation Mission (ADMission)"
-  VERSION "0.1.0")
+  LANGUAGES C CXX
+  DESCRIPTION ${ADM_PROJECT_DESCRIPTION}
+  VERSION ${ADM_VERSION})
 
 # **************************************************************************** #
 # General setup
@@ -56,10 +65,8 @@ option(ADM_SHARED_LIBS
   "Whether to create a shared ADM library." ON)
 option(ADM_USE_OPENMP
   "Whether to use OpenMP." ON)
-option(ADM_BUILD_USERGUIDE
-  "Whether to build the user guide." OFF)
-option(ADM_BUILD_DOXYGEN
-  "Whether to build the Doxygen documentation." OFF)
+option(ADM_EXAMPLES_TARGETS
+  "Whether to create targets to run the examples." ON)
 
 # **************************************************************************** #
 # Find necessary packages
@@ -67,20 +74,17 @@ option(ADM_BUILD_DOXYGEN
 # Find Boost
 find_package(Boost REQUIRED graph)
 
-# Find drag
-find_package(drag REQUIRED)
+# Find drag (https://github.com/bigno78/drag)
+add_subdirectory(additionals/3rd-party/drag-master)
 
-# Find LaTeX
-if(ADM_BUILD_USERGUIDE)
-  find_package(LATEX REQUIRED)
-endif()
+# Create imported target drag::drag
+add_library(drag::drag INTERFACE IMPORTED)
+get_target_property(_drag_includes drag INTERFACE_INCLUDE_DIRECTORIES)
+set_target_properties(drag::drag PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${_drag_includes}"
+  INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${_drag_includes}")
 
-# Find Doxygen
-if(ADM_BUILD_DOXYGEN)
-  find_package(Doxygen REQUIRED dot OPTIONAL_COMPONENTS dia mscgen)
-endif()
-
-# Find OpenMP
+# Include ADM modules
 include(adm_openmp_backend)
 
 # **************************************************************************** #
@@ -93,17 +97,15 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # ADM include directories
 # **************************************************************************** #
 set(adm_include_dirs
-  "${PROJECT_SOURCE_DIR}/include" "${PROJECT_BINARY_DIR}/include")
+  "${PROJECT_SOURCE_DIR}/include"
+  "${PROJECT_BINARY_DIR}/include")
+
 add_subdirectory(include)
 
 # **************************************************************************** #
-# Compile sources and collect libraries needed for the tests
+# Compile sources and collect libraries needed for the apps
 # **************************************************************************** #
 set(adm_libs)
 add_subdirectory(src)
 add_subdirectory(app)
-
-# **************************************************************************** #
-# Build documentation
-# **************************************************************************** #
-#add_subdirectory(docs)
+add_subdirectory(examples)

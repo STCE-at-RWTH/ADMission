@@ -1,34 +1,41 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "optimizers/min_fill_in_optimizer.hpp"
 
-#include "admission_config.hpp"
 #include "graph/tikz.hpp"
+#include "operations/elimination_algorithms.hpp"
 #include "operations/find_eliminations.hpp"
-#include "elimination_algorithm.hpp"
-#include "global_modes.hpp"
+#include "operations/global_modes.hpp"
 
 #include <boost/foreach.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
 #include <limits>
-#include <stddef.h>
 #include <string>
 #include <utility>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-OpSequence MinFillInOptimizer::min_fill_in_solve(FaceDAG& g, bool _write) const
+// ----------------- Adjoint Optimizer - Main Interface --------------------- //
+
+/******************************************************************************
+ * @brief Recursively get the Elimination that generates
+ *        the least fill-in and apply it.
+ *
+ * @param[in] g Reference to the FaceDAG.
+ * @param[in] diagnostics Whether to write diagnostic output (default: true).
+ ******************************************************************************/
+OpSequence MinFillInOptimizer::min_fill_in_solve(
+    FaceDAG& g, bool diagnostics) const
 {
   auto elims = OpSequence::make_empty();
   auto new_elim = OpSequence::make_max();
 
-  size_t n = 0;
-  VertexDesc source;
-  if (_write)
+  VertexDesc source = 0;
+  if (diagnostics)
   {
     source = add_vertex(_meta_dag);
     if (_diagnostics)
@@ -39,7 +46,6 @@ OpSequence MinFillInOptimizer::min_fill_in_solve(FaceDAG& g, bool _write) const
   while ((new_elim = get_min_fill_in_elim_on_any_graph(g)).cost() <
          OpSequence::max)
   {
-    n++;
     new_elim.apply(g);
     elims += std::move(new_elim);
     if (_diagnostics)
@@ -52,7 +58,7 @@ OpSequence MinFillInOptimizer::min_fill_in_solve(FaceDAG& g, bool _write) const
   }
   elims += global_preaccumulation_ops(g);
   preaccumulate_all(g);
-  if (_diagnostics && _write)
+  if (_diagnostics && diagnostics)
   {
     VertexDesc leaf = add_vertex(_meta_dag);
     add_edge(source, leaf, _meta_dag);
@@ -62,7 +68,23 @@ OpSequence MinFillInOptimizer::min_fill_in_solve(FaceDAG& g, bool _write) const
   return elims;
 }
 
-ADM_ALWAYS_INLINE
+/******************************************************************************
+ * @brief Recursively get the Elimination that generates
+ *        the least fill-in and apply it.
+ *
+ * @param[in] g Reference to the FaceDAG.
+ ******************************************************************************/
+OpSequence MinFillInOptimizer::solve(FaceDAG& g) const
+{
+  return min_fill_in_solve(g);
+}
+
+/******************************************************************************
+ * @brief Returns the elimination generating least fill in.
+ *
+ * @param[in] g Reference to the graph.
+ * @returns OpSequence containing the Op.
+ ******************************************************************************/
 OpSequence MinFillInOptimizer::get_min_fill_in_elim_on_any_graph(
     const admission::FaceDAG& g) const
 {
@@ -80,7 +102,6 @@ OpSequence MinFillInOptimizer::get_min_fill_in_elim_on_any_graph(
   // #pragma omp parallel for
   for (int ij = 0; ij < V; ++ij)
   {
-    // BOOST_FOREACH(auto ijk, boost::edges(g))
     BOOST_FOREACH(auto ijk, boost::out_edges(ij, g))
     {
       VertexDesc ij = source(ijk, g);
@@ -145,3 +166,5 @@ OpSequence MinFillInOptimizer::get_min_fill_in_elim_on_any_graph(
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

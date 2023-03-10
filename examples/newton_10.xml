@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="has_jacobian" for="edge" attr.name="has_jacobian" attr.type="boolean" />
+  <key id="adjoint_cost" for="edge" attr.name="adjoint_cost" attr.type="long" />
+  <key id="tangent_cost" for="edge" attr.name="tangent_cost" attr.type="long" />
+  <key id="has_model" for="edge" attr.name="has_model" attr.type="boolean" />
+  <key id="index" for="node" attr.name="index" attr.type="long" />
+  <key id="size" for="node" attr.name="size" attr.type="long" />
+  <graph id="G" edgedefault="directed" parse.nodeids="free" parse.edgeids="canonical" parse.order="nodesfirst">
+    <node id="0">
+      <data key="index">0</data>
+      <data key="size">10</data>
+    </node>
+    <node id="1">
+      <data key="index">1</data>
+      <data key="size">10</data>
+    </node>
+    <node id="2">
+      <data key="index">2</data>
+      <data key="size">10</data>
+    </node>
+    <node id="3">
+      <data key="index">3</data>
+      <data key="size">100</data>
+    </node>
+    <node id="4">
+      <data key="index">4</data>
+      <data key="size">10</data>
+    </node>
+    <node id="5">
+      <data key="index">5</data>
+      <data key="size">10</data>
+    </node>
+    <node id="6">
+      <data key="index">6</data>
+      <data key="size">100</data>
+    </node>
+    <node id="7">
+      <data key="index">7</data>
+      <data key="size">10</data>
+    </node>
+    <node id="8">
+      <data key="index">8</data>
+      <data key="size">10</data>
+    </node>
+    <node id="9">
+      <data key="index">9</data>
+      <data key="size">100</data>
+    </node>
+    <node id="10">
+      <data key="index">10</data>
+      <data key="size">10</data>
+    </node>
+    <node id="11">
+      <data key="index">11</data>
+      <data key="size">10</data>
+    </node>
+    <node id="12">
+      <data key="index">12</data>
+      <data key="size">100</data>
+    </node>
+    <node id="13">
+      <data key="index">13</data>
+      <data key="size">10</data>
+    </node>
+    <node id="14">
+      <data key="index">14</data>
+      <data key="size">10</data>
+    </node>
+    <node id="15">
+      <data key="index">15</data>
+      <data key="size">100</data>
+    </node>
+    <node id="16">
+      <data key="index">16</data>
+      <data key="size">10</data>
+    </node>
+    <node id="17">
+      <data key="index">17</data>
+      <data key="size">10</data>
+    </node>
+    <node id="18">
+      <data key="index">18</data>
+      <data key="size">100</data>
+    </node>
+    <node id="19">
+      <data key="index">19</data>
+      <data key="size">10</data>
+    </node>
+    <node id="20">
+      <data key="index">20</data>
+      <data key="size">10</data>
+    </node>
+    <node id="21">
+      <data key="index">21</data>
+      <data key="size">100</data>
+    </node>
+    <node id="22">
+      <data key="index">22</data>
+      <data key="size">10</data>
+    </node>
+    <node id="23">
+      <data key="index">23</data>
+      <data key="size">10</data>
+    </node>
+    <node id="24">
+      <data key="index">24</data>
+      <data key="size">100</data>
+    </node>
+    <node id="25">
+      <data key="index">25</data>
+      <data key="size">10</data>
+    </node>
+    <node id="26">
+      <data key="index">26</data>
+      <data key="size">10</data>
+    </node>
+    <node id="27">
+      <data key="index">27</data>
+      <data key="size">100</data>
+    </node>
+    <node id="28">
+      <data key="index">28</data>
+      <data key="size">10</data>
+    </node>
+    <node id="29">
+      <data key="index">29</data>
+      <data key="size">10</data>
+    </node>
+    <node id="30">
+      <data key="index">30</data>
+      <data key="size">100</data>
+    </node>
+    <node id="31">
+      <data key="index">31</data>
+      <data key="size">10</data>
+    </node>
+
+    <edge id="0" source="0" target="2">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="1" source="1" target="2">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="2" source="0" target="3">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="3" source="1" target="3">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="4" source="2" target="4">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="5" source="3" target="4">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="6" source="0" target="4">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="7" source="4" target="5">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="8" source="1" target="5">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="9" source="4" target="6">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="10" source="1" target="6">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="11" source="5" target="7">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="12" source="6" target="7">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="13" source="4" target="7">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="14" source="7" target="8">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="15" source="1" target="8">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="16" source="7" target="9">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="17" source="1" target="9">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="18" source="8" target="10">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="19" source="9" target="10">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="20" source="7" target="10">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="21" source="10" target="11">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="22" source="1" target="11">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="23" source="10" target="12">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="24" source="1" target="12">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="25" source="11" target="13">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="26" source="12" target="13">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="27" source="10" target="13">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="28" source="13" target="14">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="29" source="1" target="14">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="30" source="13" target="15">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="31" source="1" target="15">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="32" source="14" target="16">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="33" source="15" target="16">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="34" source="13" target="16">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="35" source="16" target="17">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="36" source="1" target="17">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="37" source="16" target="18">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="38" source="1" target="18">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="39" source="17" target="19">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="40" source="18" target="19">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="41" source="16" target="19">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="42" source="19" target="20">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="43" source="1" target="20">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="44" source="19" target="21">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="45" source="1" target="21">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="46" source="20" target="22">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="47" source="21" target="22">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="48" source="19" target="22">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="49" source="22" target="23">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="50" source="1" target="23">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="51" source="22" target="24">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="52" source="1" target="24">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="53" source="23" target="25">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="54" source="24" target="25">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="55" source="22" target="25">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="56" source="25" target="26">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="57" source="1" target="26">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="58" source="25" target="27">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="59" source="1" target="27">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="60" source="26" target="28">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="61" source="27" target="28">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="62" source="25" target="28">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="63" source="28" target="29">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="64" source="1" target="29">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">400</data>
+      <data key="tangent_cost">200</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="65" source="28" target="30">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="66" source="1" target="30">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">4000</data>
+      <data key="tangent_cost">2000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="67" source="29" target="31">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">1600</data>
+      <data key="tangent_cost">800</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="68" source="30" target="31">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">2000</data>
+      <data key="tangent_cost">1000</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="69" source="28" target="31">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+  </graph>
+</graphml>

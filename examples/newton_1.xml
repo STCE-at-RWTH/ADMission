@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="has_jacobian" for="edge" attr.name="has_jacobian" attr.type="boolean" />
+  <key id="adjoint_cost" for="edge" attr.name="adjoint_cost" attr.type="long" />
+  <key id="tangent_cost" for="edge" attr.name="tangent_cost" attr.type="long" />
+  <key id="has_model" for="edge" attr.name="has_model" attr.type="boolean" />
+  <key id="index" for="node" attr.name="index" attr.type="long" />
+  <key id="size" for="node" attr.name="size" attr.type="long" />
+  <graph id="G" edgedefault="directed" parse.nodeids="free" parse.edgeids="canonical" parse.order="nodesfirst">
+    <node id="0">
+      <data key="index">0</data>
+      <data key="size">3</data>
+    </node>
+    <node id="1">
+      <data key="index">1</data>
+      <data key="size">3</data>
+    </node>
+    <node id="2">
+      <data key="index">2</data>
+      <data key="size">3</data>
+    </node>
+    <node id="3">
+      <data key="index">3</data>
+      <data key="size">9</data>
+    </node>
+    <node id="4">
+      <data key="index">4</data>
+      <data key="size">3</data>
+    </node>
+
+    <edge id="0" source="0" target="2">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">20</data>
+      <data key="tangent_cost">10</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="1" source="1" target="2">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">20</data>
+      <data key="tangent_cost">10</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="2" source="0" target="3">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">60</data>
+      <data key="tangent_cost">30</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="3" source="1" target="3">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">60</data>
+      <data key="tangent_cost">30</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="4" source="2" target="4">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">54</data>
+      <data key="tangent_cost">27</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="5" source="3" target="4">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">54</data>
+      <data key="tangent_cost">27</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="6" source="0" target="4">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+  </graph>
+</graphml>

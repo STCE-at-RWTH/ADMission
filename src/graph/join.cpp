@@ -1,4 +1,4 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/join.hpp"
 
@@ -9,19 +9,24 @@
 #include <boost/pending/property.hpp>
 
 #include <assert.h>
-#include <iostream>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-/**Joins vertices of a DAG that have identical predecessor
+/******************************************************************************
+ * @brief Joins vertices of a DAG that have identical predecessor
+ *        and successor sets.
+ *
+ * Joins vertices of a DAG that have identical predecessor
  * and successor sets. For matrix-free vector DAGs, the
  * solution on the simplified (joined) DAG is not equal
  * to the cost on the original DAG.
  * It holds: c_opt(G) <= c_opt(G_joined).
- */
+ *
+ * @param[inout] g Reference to the graph.
+ ******************************************************************************/
 void join_vertices(DAG& g)
 {
   using boost::get;
@@ -42,12 +47,10 @@ void join_vertices(DAG& g)
         {
           bool s = in_degree(j, g) == in_degree(k, g) &&
                    out_degree(j, g) == out_degree(k, g);
-          std::cout << "init s=" << s << std::endl;
 
           if (s && in_degree(j, g))
           {
             s = s && same_neighbors<DAG, lower_accessor>(g, j, k);
-            std::cout << "same succ s=" << s << std::endl;
             if (s)
             {
               BOOST_FOREACH(auto ij, in_edges(j, g))
@@ -56,7 +59,6 @@ void join_vertices(DAG& g)
                 assert(was_inserted == false);
                 s = s && Fprime_exists[ij] == Fprime_exists[ik] &&
                     Fbardot_exists[ij] == Fbardot_exists[ik];
-                std::cout << "same edge state s=" << s << std::endl;
               }
             }
           }
@@ -64,7 +66,6 @@ void join_vertices(DAG& g)
           if (s && out_degree(j, g))
           {
             s = s && same_neighbors<DAG, upper_accessor>(g, j, k);
-            std::cout << "same pred s=" << s << std::endl;
             if (s)
             {
               BOOST_FOREACH(auto jl, out_edges(j, g))
@@ -73,7 +74,6 @@ void join_vertices(DAG& g)
                 assert(was_inserted == false);
                 s = s && Fprime_exists[jl] == Fprime_exists[kl] &&
                     Fbardot_exists[jl] == Fbardot_exists[kl];
-                std::cout << "same edge state s=" << s << std::endl;
               }
             }
           }
@@ -110,3 +110,5 @@ void join_vertices(DAG& g)
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

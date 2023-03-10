@@ -1,33 +1,52 @@
-#ifndef FACE_DAG_HPP
-#define FACE_DAG_HPP
+#ifndef ADM_INC_GRAPH_FACE_DAG_HPP_
+#define ADM_INC_GRAPH_FACE_DAG_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
+#include "admission_config.hpp"
 #include "graph/DAG.hpp"
+#include "misc/doxygen.hpp"
 
 #include <memory>
+#include <utility>
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \addtogroup DagCreate Creating and transforming DAGs.
- * @{
- */
+DOXYGEN_MODULE_BEGIN(DagCreate)
 
-/**\brief Constructs a face DAG from a DAG according to the Rule in (Definition 3).
- *
- * @param[in] g_const Const reference to a DAG.
- * @returns std::shared_ptr to the face DAG corresponding to g_const.
- */
+//! Finds the global mininmal vertex index inside a DAG.
+template<typename Graph>
+ADM_ALWAYS_INLINE index_t min_vertex_index(const Graph& g);
+
+//! Finds the global maximal vertex index inside a DAG.
+template<typename Graph>
+ADM_ALWAYS_INLINE index_t max_vertex_index(const Graph& g);
+
+//! Adds a vertex to a graph and initialises it with the
+//! corresponding edge from the source DAG.
+ADM_ALWAYS_INLINE VertexDesc
+add_vertex_from(DAG& g, const EdgeDesc e, FaceDAG& g_face);
+
+//! Adds an edge to a FaceDAG and initialises it with the
+//! corresponding vertex from the DAG.
+ADM_ALWAYS_INLINE std::pair<EdgeDesc, bool> add_edge_from(
+    const DAG& g, const VertexDesc v, FaceDAG& g_face, const VertexDesc i,
+    const VertexDesc j);
+
+//! Constructs a face DAG from a DAG according to the Rule in (Definition 3).
 std::shared_ptr<FaceDAG> make_face_dag(const DAG& g_const);
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(DagCreate)
 
 }  // end namespace admission
 
-#endif  // FACE_DAG_HPP
+// ################ INCLUDE TEMPLATE AND INLINE DEFINITIONS ################# //
+
+#include "graph/impl/face_dag.hpp"  // IWYU pragma: export
+
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_GRAPH_FACE_DAG_HPP_

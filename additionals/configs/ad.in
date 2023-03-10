@@ -1,5 +1,0 @@
-graph_path ../graphs/newton_2.xml
-optimizer_name BranchAndBound
-n_threads 48
-thread_spawn_depth 2
-preaccumulate_all 0

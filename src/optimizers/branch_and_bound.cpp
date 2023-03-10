@@ -1,4 +1,4 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "optimizers/branch_and_bound.hpp"
 
@@ -7,56 +7,42 @@
 #include "lower_bounds/lower_bound.hpp"
 #include "operations/find_eliminations.hpp"
 #include "optimizers/optimizer_stats.hpp"
+#include "util/openmp.hpp"
 
 #include <boost/foreach.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/properties.hpp>
 
 #include <algorithm>
 #include <iostream>
-#include <omp.h>
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-OpSequence BranchAndBound::solve(FaceDAG& g) const
-{
-  if (_lbound == nullptr)
-  {
-    throw std::runtime_error("Incomplete Solver");
-  }
-  this->_est.init(g);
-  OpSequence res = OpSequence::make_max();
+// -------------------- BranchAndBound - Main Interface --------------------- //
 
-  #pragma omp parallel default(shared)
-  {
-    #pragma omp single
-    {
-      if (_diagnostics)
-      {
-        std::ofstream writer("0.tex");
-        admission::write_tikz(writer, g);
-        writer.close();
-      }
-      res = solve(g, OpSequence::make_empty(), 0, add_vertex(_meta_dag));
-    }
-  }
-
-  return res;
-}
-
-OpSequence BranchAndBound::solve(
+/******************************************************************************
+ * @brief Our own solve function, calling itself recursively.
+ *
+ * @param[in] g FaceDag& The input graph.
+ * @param[in] cost_until_now flop_t Reference for comparison of global optima.
+ * @param[in] parallel_depth flop_t Know the depth of recursion to switch
+ *                           openMP task parallelisation.
+ * @param[in] source VertexDesc Current Vertex in the MetaDAG.
+ ******************************************************************************/
+OpSequence BranchAndBound::branch_and_bound_solve(
     FaceDAG& g, const OpSequence solution_until_now,
     const flop_t parallel_depth, const VertexDesc source) const
 {
   /* After _interval write a single-line output
    * providing information about solution progress. */
-  static double time = omp_get_wtime();
-  if (omp_get_wtime() - time > _interval)
+  static double time = get_wtime();
+  if (get_wtime() - time > _interval)
   {
     #pragma omp critical
     {
@@ -76,7 +62,7 @@ OpSequence BranchAndBound::solve(
         this->_stats.write_log(std::cout);
       }
       std::cout << std::endl;
-      time = omp_get_wtime();
+      time = get_wtime();
     }
   }
 
@@ -98,9 +84,19 @@ OpSequence BranchAndBound::solve(
   auto branch_elims = _greedy_optimizer.greedy_solve(*hp, false);
   *hp = g;
   auto min_fill_in_elims = _min_fill_in_optimizer.min_fill_in_solve(*hp, false);
+  *hp = g;
+  auto tan_elims = _tangent_optimizer.tangent_solve(*hp);
+  *hp = g;
+  auto adj_elims = _adjoint_optimizer.adjoint_solve(*hp);
+  *hp = g;
+
   branch_elims = (min_fill_in_elims.cost() < branch_elims.cost()) ?
                      min_fill_in_elims :
                      branch_elims;
+  branch_elims = (tan_elims.cost() < branch_elims.cost()) ? tan_elims :
+                                                            branch_elims;
+  branch_elims = (adj_elims.cost() < branch_elims.cost()) ? adj_elims :
+                                                            branch_elims;
   delete hp;
   #pragma omp critical
   {
@@ -159,10 +155,11 @@ OpSequence BranchAndBound::solve(
                        final(parallel_depth >= _parallel_depth)
       {
         this->_stats.add(Branch);
-        subbranch_elims += solve(
+        subbranch_elims += branch_and_bound_solve(
             *hp, solution_until_now + subbranch_elims, parallel_depth + 1, mv);
 
-        /* Check if the optimal solution on h is better than the current optimum. */
+        /* Check if the optimal solution on h is better than the current
+         * optimum. */
         #pragma omp critical
         {
           if (subbranch_elims.cost() < branch_elims.cost())
@@ -198,21 +195,62 @@ OpSequence BranchAndBound::solve(
   return branch_elims;
 }
 
-/**\brief Traverses all possible preaccumulations and eliminations (operations)
+/******************************************************************************
+ * @brief Override the virtual solve function.
+ *
+ * @param[in] g FaceDAG& The input graph.
+ * @returns OpSequence The optimal sequence.
+ ******************************************************************************/
+OpSequence BranchAndBound::solve(FaceDAG& g) const
+{
+  if (_lbound == nullptr)
+  {
+    throw std::runtime_error("Incomplete Solver");
+  }
+  this->_est.init(g);
+  OpSequence res = OpSequence::make_max();
+
+  #pragma omp parallel default(shared)
+  {
+    #pragma omp single
+    {
+      if (_diagnostics)
+      {
+        std::ofstream writer("0.tex");
+        admission::write_tikz(writer, g);
+        writer.close();
+      }
+      res = branch_and_bound_solve(
+          g, OpSequence::make_empty(), 0, add_vertex(_meta_dag));
+    }
+  }
+
+  return res;
+}
+
+// --------------- BranchAndBound - Internal solution helpers --------------- //
+
+/******************************************************************************
+ * @brief Traverses all possible preaccumulations and eliminations (operations)
  *        on a face DAG. For each operation, it performs some task specified
  *        by the callables passed to it.
- * \param g The face DAG to traverse.
- * \param vertex_action Callable to be executed on each accumulatable vertex.
- * \param edge_action Callable to be executed on each eliminatable edge.
- */
+ *
+ * @tparam V_ACTION Callable vertex action.
+ * @tparam E_ACTION Callable edge action.
+ * @param[in] g The face DAG to traverse.
+ * @param[in] vertex_action Callable to be executed on each
+ *                          accumulatable vertex.
+ * @param[in] edge_action Callable to be executed on each eliminatable edge.
+ ******************************************************************************/
 template<typename V_ACTION, typename E_ACTION>
 void BranchAndBound::traverse_elims(
     const FaceDAG& g, V_ACTION& vertex_action, E_ACTION& edge_action) const
 {
   auto Fprime_exists = boost::get(boost::vertex_acc_stat, g);
   auto Fbardot_exists = boost::get(boost::vertex_has_model, g);
-  // auto index          = boost::get(boost::edge_index, g);
-  // const auto& [i_old, j_old, k_old]  = boost::get_property(g, boost::graph_previous_op);
+  auto index = boost::get(boost::edge_index, g);
+  const auto& [i_old, j_old, k_old] = boost::get_property(
+      g, boost::graph_previous_op);
 
   BOOST_FOREACH(auto v, vertices(g))
   {
@@ -228,13 +266,14 @@ void BranchAndBound::traverse_elims(
     VertexDesc ij = boost::source(ijk, g);
     VertexDesc jk = boost::target(ijk, g);
 
-    if (!in_degree(ij, g) || !out_degree(jk, g))
+    /* Skip minimal and maximal edges as well as edges with
+     * an index smaller than the last eliminated edge if
+     */
+    if (!in_degree(ij, g) || !out_degree(jk, g) ||
+        (index(ijk) < j_old && index(ijk) != k_old && index(ijk) != i_old))
     {
       continue;
     }
-
-    // auto i = *(in_edges(ij,g).first);
-    // auto k = *(out_edges(jk,g).first);
 
     OpSequence ij_acc_s = cheapest_preacc(ij, g);
     OpSequence jk_acc_s = cheapest_preacc(jk, g);
@@ -397,7 +436,7 @@ void BranchAndBound::traverse_elims(
         }
         else
         {
-          edge_action(g, ij_acc_s + jk_acc_s + adj_s);
+          edge_action(g, jk_acc_s + adj_s);
         }
       }
       else
@@ -414,3 +453,5 @@ void BranchAndBound::traverse_elims(
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

@@ -1,20 +1,20 @@
-#ifndef GRAPH_JOIN_HPP
-#define GRAPH_JOIN_HPP
+#ifndef ADM_INC_GRAPH_JOIN_HPP_
+#define ADM_INC_GRAPH_JOIN_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/DAG.hpp"
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**\brief Joins vertices of a DAG that have
- * identical predecessor and successor sets.
- */
+//! Joins vertices of a DAG that have identical predecessor and successor sets.
 void join_vertices(DAG& g);
 
 }  // end namespace admission
 
-#endif  // GRAPH_JOIN_HPP
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_GRAPH_JOIN_HPP_

@@ -1,119 +1,47 @@
-#ifndef GRAPH_UTILS_HPP
-#define GRAPH_UTILS_HPP
+#ifndef ADM_INC_GRAPH_UTILS_HPP_
+#define ADM_INC_GRAPH_UTILS_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "admission_config.hpp"
+#include "misc/doxygen.hpp"
 
-#include <boost/foreach.hpp>
 #include <boost/graph/graph_traits.hpp>
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \defgroup DagMod  Modifying DAGs and FaceDAGs.
- * \defgroup DagInfo Information about the structure of DAGs and FaceDAGs.
- */
+DOXYGEN_MODULE_BEGIN(DagIo)
 
-/**\ingroup DagInfo
- * \brief Computes the longest directed path (...,v) ending in v.
- *
- * Complexity O(|E|).
- * @tparam Graph Type of the graph.
- * @param[in] g Reference to the graph.
- * @param[in] v Vertex descriptor of the vertex to start from.
- * @returns The longest reverse path starting form a vertex.
- */
+//! Computes the longest directed path (...,v) ending in v.
 template<typename Graph>
 ADM_STRONG_INLINE plength_t longest_reverse_path_from(
-    Graph& g, typename boost::graph_traits<Graph>::vertex_descriptor v)
-{
-  plength_t l_path = 0;
-  plength_t local_l_path = 0;
+    Graph& g, typename boost::graph_traits<Graph>::vertex_descriptor v);
 
-  if (in_degree(v, g) == 0)
-  {
-    return 0;
-  }
-
-  BOOST_FOREACH(auto e, in_edges(v, g))
-  {
-    local_l_path = longest_reverse_path_from(g, source(e, g));
-    l_path = (local_l_path > l_path) ? local_l_path : l_path;
-  }
-  return 1 + l_path;
-}
-
-/**\ingroup DagInfo
- * \brief Computes the longest directed path (v,...) starting with v.
- *
- * Complexity O(|E|).
- * @tparam Graph Type of the graph.
- * @param[in] g Reference to the graph.
- * @param[in] v Vertex descriptor of the vertex to start from.
- * @returns The longest path starting form a vertex.
- */
+//! Computes the longest directed path (v,...) starting with v.
 template<typename Graph>
 ADM_STRONG_INLINE plength_t longest_path_from(
-    Graph& g, typename boost::graph_traits<Graph>::vertex_descriptor v)
-{
-  plength_t l_path = 0;
-  plength_t local_l_path = 0;
+    const Graph& g, typename boost::graph_traits<Graph>::vertex_descriptor v);
 
-  if (out_degree(v, g) == 0)
-  {
-    return 0;
-  }
-
-  BOOST_FOREACH(auto e, out_edges(v, g))
-  {
-    local_l_path = longest_path_from(g, target(e, g));
-    l_path = (local_l_path > l_path) ? local_l_path : l_path;
-  }
-  return 1 + l_path;
-}
-
-/**\ingroup DagInfo
- * \brief Computes the longest directed path (...,v,...) including v.
- *
- * Complexity O(|E|).
- * @tparam Graph Type of the graph.
- * @param g Reference to the graph.
- * @param v Vertex descriptor included in the path.
- * @returns Length of the longest path including v.
- */
+//! Computes the longest directed path (...,v,...) including v.
 template<typename Graph>
 ADM_ALWAYS_INLINE plength_t longest_bidirectional_path_from(
-    Graph& g, typename boost::graph_traits<Graph>::vertex_descriptor v)
-{
-  return longest_path_from(g, v) + longest_reverse_path_from(g, v);
-}
+    const Graph& g, typename boost::graph_traits<Graph>::vertex_descriptor v);
 
-/**\ingroup DagInfo
- * \brief Computes the length of the longest
- * directed path in a (face) DAG.
- *
- * Complexity O(?).
- * @returns The longest path inside the Graph.
- * @tparam Graph Type of the graph.
- * @param[in] g Reference to the graph.
- */
-template<typename GraphT>
-ADM_ALWAYS_INLINE plength_t longest_path(GraphT& g)
-{
-  plength_t l_path = 0;
+//! Computes the length of the longest directed path in a (face) DAG.
+template<typename Graph>
+ADM_ALWAYS_INLINE plength_t longest_path(const Graph& g);
 
-  for (auto v = vertices(g); v.first != v.second; v.first++)
-  {
-    plength_t local_l_path = longest_path_from(g, *v.first);
-    l_path = (local_l_path > l_path) ? local_l_path : l_path;
-  }
-  return l_path;
-}
+DOXYGEN_MODULE_END(DagIo)
 
 }  // end namespace admission
 
-#endif  // GRAPH_UTILS_HPP
+// ################ INCLUDE TEMPLATE AND INLINE DEFINITIONS ################# //
+
+#include "graph/impl/utils.hpp"  // IWYU pragma: export
+
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_GRAPH_UTILS_HPP_

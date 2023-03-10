@@ -40,7 +40,9 @@ if(ADM_OPENMP_RUNTIME)
 endif()
 
 # Find OpenMP
-find_package(OpenMP COMPONENTS CXX REQUIRED)
+if(ADM_USE_OPENMP)
+  find_package(OpenMP COMPONENTS CXX REQUIRED)
+endif()
 
 # Override OpenMP_CXX_LIBRARIES and set OpenMP_CXX_LIBRARY_DIR if necessary
 if(ADM_OPENMP_RUNTIME)
@@ -91,7 +93,7 @@ function(adm_compile_with_openmp visibility targets)
           ${tgt} SYSTEM ${visibility} ${OpenMP_CXX_INCLUDE_DIR})
       endif()
     else()
-      nag_add_c_flag("-Wno-unknown-pragmas" WNO_UNKNOWN_PRAGMAS ${tgt})
+      target_compile_options(${tgt} ${visibility} "-Wno-unknown-pragmas")
     endif()
   endforeach()
 endfunction()

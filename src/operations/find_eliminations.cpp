@@ -1,24 +1,43 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "operations/find_eliminations.hpp"
 
 #include "graph/neighbors.hpp"
 
 #include <boost/foreach.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 
 #include <type_traits>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-/**
- * \defgroup EliminationAlgorithm Elimination, Merge and Preaccumulation algorithms and helper functions.
- * \addtogroup EliminationAlgorithm
- * @{
- */
+DOXYGEN_MODULE_BEGIN(Algorithms)
 
+/******************************************************************************
+ * @brief Checks if an unaccumulated vertex has an
+ *        accumulated merge candidate for a forced merge.
+ *
+ * This is not used by eliminate_edge()
+ * but may be used by optimisation algorithms.
+ * \code
+ *      kl
+ *      | \
+ *      |  \
+ *      ik F_ik
+ *      |  /
+ *      | /
+ *      hi
+ * \endcode
+ * @param[in] ij Vertex for which we look for a candidate.
+ * @param[in] g  The DAG.
+ * @returns A std::pair containing a bool indicating if a candidate vertex
+ *          was found and the vertex descriptor of the candidate vertex.
+ *          Otherwise the vertex descriptor is default initialised.
+ ******************************************************************************/
 std::pair<bool, VertexDesc> has_merge_candidate(
     const VertexDesc ij, const FaceDAG& g)
 {
@@ -55,6 +74,16 @@ std::pair<bool, VertexDesc> has_merge_candidate(
   return std::make_pair(false, VertexDesc());
 }
 
+/******************************************************************************
+ * @brief Check if there are vertices that are mergeable by preaccumulation
+ *        cheaper than propagating their neighboring Jacobians through them, and
+ *        return the first that is found.
+ *
+ * @param[in] g const FaceDAG& The face DAG to search on.
+ * @returns std::pair of OpSequence and VertexDesc. If no mergeable vertex is
+ *found the OpSequence is empty an has maximal cost and the VertexDesc is
+ * default-initialized.
+ ******************************************************************************/
 std::pair<OpSequence, VertexDesc> get_mergeable_vertex_on_any_graph(
     const admission::FaceDAG& g)
 {
@@ -116,6 +145,14 @@ std::pair<OpSequence, VertexDesc> get_mergeable_vertex_on_any_graph(
   return res;
 }
 
+/******************************************************************************
+ * @brief Finds the cheapest way to eliminate an edge \f$(i,j,k)\f$.
+ *
+ * @param[in] ijk const EdgeDesc The edge to eliminate.
+ * @param[in] g const FaceDAG& The face DAG.
+ * @returns OpSequence containging exactly one cheapest elimination opeeration
+ * that eliminates ijk.
+ ******************************************************************************/
 OpSequence get_cheapest_elim(const EdgeDesc ijk, const FaceDAG& g)
 {
   VertexDesc ij = source(ijk, g), jk = target(ijk, g);
@@ -144,8 +181,10 @@ OpSequence get_cheapest_elim(const EdgeDesc ijk, const FaceDAG& g)
   // Case 1: Both jacobians are accumulated.
   // =======================================
   // We can
-  //  - propagate \f$F'_{ij}\f$ through \f$\dot F_{jk}\f$ if (jk) has a tangent model
-  //  - propagate \f$F'_{jk}\f$ through \f$\bar F_{ij}\f$ if (ij) has an adjoint model
+  //  - propagate \f$F'_{ij}\f$ through \f$\dot F_{jk}\f$ if (jk) has a tangent
+  //  model
+  //  - propagate \f$F'_{jk}\f$ through \f$\bar F_{ij}\f$ if (ij) has an adjoint
+  //  model
   //  - multiply \f$F'_{jk} F'_{ij}\f$
   if ((acc_stat[ij] == true) && (acc_stat[jk] == true))
   {
@@ -164,7 +203,8 @@ OpSequence get_cheapest_elim(const EdgeDesc ijk, const FaceDAG& g)
   // We can
   //  - accumulate \f$F'_{jk}\f$ and multiply \f$F'_{jk} F'_{ij}\f$
   //  - if (ij) has an ADJ model
-  //    - accumulate \f$F'_{jk}\f$ and propagate through \f$\bar F_{ij}\f$ in ADJ mode
+  //    - accumulate \f$F'_{jk}\f$ and propagate through \f$\bar F_{ij}\f$ in
+  //    ADJ mode
   //  - propagate \f$F'_{ij}\f$ through \f$\dot F_{jk}\f$ in TAN mode.
   else if ((acc_stat[ij] == true) && (acc_stat[jk] == false))
   {
@@ -180,7 +220,8 @@ OpSequence get_cheapest_elim(const EdgeDesc ijk, const FaceDAG& g)
   // We can
   //  - accumulate \f$F'_{ij}\f$ and multiply \f$F'_{jk} F'_{ij}\f$
   //  - if (jk) has a TAN model
-  //    - accumulate \f$F'_{ij}\f$ and propagate through \f$\dot F_{jk}\f$ in TAN mode
+  //    - accumulate \f$F'_{ij}\f$ and propagate through \f$\dot F_{jk}\f$ in
+  //    TAN mode
   //  - propagate \f$F'_{jk}\f$ through \f$\bar F_{ij}\f$ in ADJ mode.
   else if ((acc_stat[ij] == false) && (acc_stat[jk] == true))
   {
@@ -194,9 +235,12 @@ OpSequence get_cheapest_elim(const EdgeDesc ijk, const FaceDAG& g)
   // Case 4: ij and jk are not accumulated.
   // ======================================
   // We can
-  //  - accumulate \f$F'_{ij}\f$ and \f$F'_{jk}\f$ and multiply \f$F'_{jk} F'_{ij}\f$
-  //  - accumulate \f$F'_{ij}\f$ and propagate through \f$\dot F_{jk}\f$ in TAN mode
-  //  - accumulate \f$F'_{jk}\f$ and propagate through \f$\bar F_{ij}\f$ in ADJ mode
+  //  - accumulate \f$F'_{ij}\f$ and \f$F'_{jk}\f$ and multiply \f$F'_{jk}
+  //  F'_{ij}\f$
+  //  - accumulate \f$F'_{ij}\f$ and propagate through \f$\dot F_{jk}\f$ in TAN
+  //  mode
+  //  - accumulate \f$F'_{jk}\f$ and propagate through \f$\bar F_{ij}\f$ in ADJ
+  //  mode
   else
   {
     update(ij_acc + jk_acc + mul_s);
@@ -206,6 +250,13 @@ OpSequence get_cheapest_elim(const EdgeDesc ijk, const FaceDAG& g)
   return opt;
 }
 
+/******************************************************************************
+ * @brief Finds the cheapest elimination on a graph.
+ *
+ * @param[in] g const FaceDAG& The face DAG to search on.
+ * @returns OpSequence containing exactly the one elimination operation that
+ * is the cheapest on g.
+ ******************************************************************************/
 OpSequence get_cheapest_elim_on_any_graph(const FaceDAG& g)
 {
   OpSequence opt = OpSequence::make_max();
@@ -235,12 +286,11 @@ OpSequence get_cheapest_elim_on_any_graph(const FaceDAG& g)
       }
     }
   }
-
   return opt;
 }
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(Algorithms)
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

@@ -1,4 +1,4 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/face_dag.hpp"
 
@@ -10,56 +10,28 @@
 #include <boost/graph/properties.hpp>
 
 #include <assert.h>
-#include <limits>
 #include <list>
 #include <map>
 #include <utility>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-/**\brief Finds the global mininmal vertex index inside a DAG.
- */
-template<typename Graph>
-ADM_ALWAYS_INLINE index_t min_vertex_index(const Graph& g)
-{
-  index_t min = std::numeric_limits<index_t>::max();
-  BOOST_FOREACH(auto v, vertices(g))
-  {
-    min = boost::get(boost::vertex_index, g, v) < min ?
-              boost::get(boost::vertex_index, g, v) :
-              min;
-  }
-  return min;
-}
-
-/**\brief Finds the global maximal vertex index inside a DAG.
- */
-template<typename Graph>
-ADM_ALWAYS_INLINE index_t max_vertex_index(const Graph& g)
-{
-  index_t max = std::numeric_limits<index_t>::lowest();
-  BOOST_FOREACH(auto v, vertices(g))
-  {
-    max = boost::get(boost::vertex_index, g, v) > max ?
-              boost::get(boost::vertex_index, g, v) :
-              max;
-  }
-  return max;
-}
-
-/**\brief Adds a vertex to a graph and initialises it with the
- *        corresponding edge from the source DAG. Rule from
- *        (Definition 3) (1. 3. 5.).
+/******************************************************************************
+ * @brief Adds a vertex to a graph and initialises it with the
+ *        corresponding edge from the source DAG.
  *
- * @param[in]    g      const reference to the graph we come from.
- * @param[in]    e      edge used to initiaise the vertex.
+ * Follows rule from (Definition 3) (1. 3. 5.).
+ *
+ * @param[in] g const reference to the graph we come from.
+ * @param[in] e edge used to initiaise the vertex.
  * @param[inout] g_face reference to the graph we add an edge to.
- */
-ADM_ALWAYS_INLINE
-VertexDesc add_vertex_from(DAG& g, const EdgeDesc e, FaceDAG& g_face)
+ * @returns a descriptor of the new vertex.
+ ******************************************************************************/
+ADM_ALWAYS_INLINE VertexDesc
+add_vertex_from(DAG& g, const EdgeDesc e, FaceDAG& g_face)
 {
   auto w = add_vertex(g_face);
   boost::put(
@@ -75,18 +47,20 @@ VertexDesc add_vertex_from(DAG& g, const EdgeDesc e, FaceDAG& g_face)
   return w;
 }
 
-/**\brief Adds an edge to a FaceDAG and initialises it with the
- *        corresponding vertex from the DAG. Rule from
- *        (Definition 3) (2. 4. 6.).
+/******************************************************************************
+ * @brief Adds an edge to a FaceDAG and initialises it with the
+ *        corresponding vertex from the DAG.
  *
- * @param[in]    g      const reference to the graph we come from.
- * @param[in]    v      vertex used to initiaise the new edge.
+ * Follows rule from (Definition 3) (2. 4. 6.).
+ *
+ * @param[in] g const reference to the graph we come from.
+ * @param[in] v vertex used to initiaise the new edge.
  * @param[inout] g_face reference to the graph we add an edge to.
- * @param[in]    i      source of the new edge.
- * @param[in]    j      target of the new edge.
- */
-ADM_ALWAYS_INLINE
-std::pair<EdgeDesc, bool> add_edge_from(
+ * @param[in] i source of the new edge.
+ * @param[in] j target of the new edge.
+ * @returns a descriptor of the new edge.
+ ******************************************************************************/
+ADM_ALWAYS_INLINE std::pair<EdgeDesc, bool> add_edge_from(
     const DAG& g, const VertexDesc v, FaceDAG& g_face, const VertexDesc i,
     const VertexDesc j)
 {
@@ -99,9 +73,17 @@ std::pair<EdgeDesc, bool> add_edge_from(
   return e;
 }
 
+/******************************************************************************
+ * @brief Constructs a face DAG from a DAG according to the Rule in
+ *        (Definition 3).
+ *
+ * @param[in] g_const Const reference to a DAG.
+ * @returns std::shared_ptr to the face DAG corresponding to g_const.
+ ******************************************************************************/
 std::shared_ptr<FaceDAG> make_face_dag(const DAG& g_const)
 {
-  // Copy g_const, because we modify the source DAG to simplify the construction.
+  // Copy g_const, because we modify the source DAG to simplify the
+  // construction.
   DAG g = g_const;
 
   // Find vertices without succ. or pred. aka. maximal and minimal vertices.
@@ -149,3 +131,5 @@ std::shared_ptr<FaceDAG> make_face_dag(const DAG& g_const)
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

@@ -1,9 +1,0 @@
-graph_path ../graphs/trivial.xml
-optimizer_name BranchAndBound
-n_threads 6
-thread_spawn_depth 2
-print_diagnostics 0
-preaccumulate_all 0
-solution_output_interval 1.0
-human_readable_output 1
-join_vertices 0

@@ -1,24 +1,24 @@
-#ifndef OPTIMIZER_STATS_HPP
-#define OPTIMIZER_STATS_HPP
+#ifndef ADM_INC_OPTIMIZERS_OPTIMIZER_STATS_HPP_
+#define ADM_INC_OPTIMIZERS_OPTIMIZER_STATS_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
-#include "admission_config.hpp"
+#include "misc/doxygen.hpp"
 
 #include <iostream>
 #include <stddef.h>
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \addtogroup Optimizers
- * \ @{
- */
+DOXYGEN_MODULE_BEGIN(Optimizers)
 
-/// Types of operations that can be logged.
+/******************************************************************************
+ * @enum StatT
+ * @brief Types of operations that can be logged.
+ ******************************************************************************/
 enum StatT
 {
   Cons = 0,
@@ -31,93 +31,45 @@ enum StatT
   Leaf
 };
 
-/// Struct for storing a benchmark of the optimizers operations.
+/******************************************************************************
+ * @brief Struct for storing a benchmark of the optimizers operations.
+ ******************************************************************************/
 struct OptimizerStats
 {
  public:
+  //! Counters for tracked data.
   size_t data[8] = {0, 0, 0, 0, 0, 0};
 
-  /// Reset all tracked values to 0.
-  void reset()
-  {
-    for (size_t i = 0; i < 8; ++i)
-    {
-      data[i] = 0;
-    }
-  }
+  //! Reset all tracked values to 0.
+  void reset();
 
-  /**\brief Critical addition, still correct,
-   * if multiple threads try to increment a counter.
-   *
-   * @param what Tag of the value to increment
-   * @param i value to add. Default value is 1
-   */
-  void add(const StatT& what, const ptrdiff_t& i = 1)
-  {
-#if ADM_STATS
-    #pragma omp atomic
-    data[what] += i;
-#endif  // ADM_STATS
-  }
+  //! Critical addition, still correct, if multiple threads try to
+  //! increment a counter.
+  void add(const StatT& what, const ptrdiff_t& i = 1);
 
-  /**\brief Addition, may result in false results
-   * if multiple threads try to increment at the same
-   * time.
-   *
-   * @param what Tag of the value to increment
-   * @param i value to add. Default value is 1
-   */
-  void non_critical_add(const StatT& what, const ptrdiff_t& i = 1)
-  {
-#if ADM_STATS
-    data[what] += i;
-#endif  // ADM_STATS
-  }
+  //! Addition, may result in false results if multiple threads try to
+  //! increment at the same time.
+  void non_critical_add(const StatT& what, const ptrdiff_t& i = 1);
 
-  /**\brief Write the current counters into a single line
-   * to provide the user with a live update of the
-   * optimisation.
-   *
-   * @param[inout] os ostream to write to.
-   */
-  void write_human_readable(std::ostream& os = std::cout)
-  {
-#if ADM_STATS
-    os << " Search space: " << data[Perf] << " Cuts: " << data[Bound]
-       << " Branches : " << data[Branch] << " Leaves: " << data[Leaf] << "\r";
-#endif  // ADM_STATS
-  }
+  //! Write the current counters into a single line to provide the user with
+  //! a live update of the optimisation.
+  void write_human_readable(std::ostream& os = std::cout);
 
-  /**\brief Write the counters in a human-readable
-   * multi-line format.
-   */
-  void write(std::ostream& os = std::cout)
-  {
-#if ADM_STATS
-    os << "Statistics:"
-       << "\n\tSearch space: " << data[Perf] << "\n\tCuts: " << data[Bound]
-       << "\n\tBranches: " << data[Branch] << "\n\tLeaves: " << data[Leaf]
-       << std::endl;
-#endif  // ADM_STATS
-  }
+  //! Write the counters in a human-readable multi-line format.
+  void write(std::ostream& os = std::cout);
 
-  /**\brief Write the counters in a condensed
-   * human-readable single line format.
-   */
-  void write_log(std::ostream& os = std::cout)
-  {
-#if ADM_STATS
-    os << " " << data[Cons] << " " << data[Perf] << " " << data[Opti] << " "
-       << data[Disc] << " " << data[Bound] << " " << data[Branch] << " "
-       << data[Leaf] << " " << data[GlobUpdate];
-#endif  // ADM_STATS
-  }
+  //! Write the counters in a condensed human-readable single line format.
+  void write_log(std::ostream& os = std::cout);
 };
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(Optimizers)
 
 }  // end namespace admission
 
-#endif  // OPTIMSIER_STATS_HPP
+// ################ INCLUDE TEMPLATE AND INLINE DEFINITIONS ################# //
+
+#include "optimizers/impl/optimizer_stats.hpp"  // IWYU pragma: export
+
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_OPTIMIZERS_OPTIMIZER_STATS_HPP_

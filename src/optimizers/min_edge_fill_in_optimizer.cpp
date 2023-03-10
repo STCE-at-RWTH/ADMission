@@ -1,10 +1,9 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "optimizers/min_edge_fill_in_optimizer.hpp"
 
-#include "admission_config.hpp"
+#include "operations/elimination_algorithms.hpp"
 #include "operations/find_eliminations.hpp"
-#include "elimination_algorithm.hpp"
 
 #include <boost/foreach.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -12,12 +11,17 @@
 #include <limits>
 #include <utility>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-ADM_ALWAYS_INLINE
+/******************************************************************************
+ * @brief Returns the elimination generating least fill in.
+ *
+ * @param[in] g Reference to the graph.
+ * @returns OpSequence containing the Op.
+ ******************************************************************************/
 OpSequence MinEdgeFillInOptimizer::get_min_fill_in_elim_on_any_graph(
     const admission::FaceDAG& g) const
 {
@@ -101,3 +105,5 @@ OpSequence MinEdgeFillInOptimizer::get_min_fill_in_elim_on_any_graph(
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

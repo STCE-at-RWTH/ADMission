@@ -1,179 +1,159 @@
-#ifndef BRANCH_AND_BOUND_HPP
-#define BRANCH_AND_BOUND_HPP
+#ifndef ADM_INC_OPTIMIZERS_BRANCH_AND_BOUND_HPP_
+#define ADM_INC_OPTIMIZERS_BRANCH_AND_BOUND_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "admission_config.hpp"
 #include "graph/DAG.hpp"
+#include "misc/doxygen.hpp"
 #include "operations/op_sequence.hpp"
+#include "optimizers/adjoint_optimizer.hpp"
 #include "optimizers/estimator.hpp"
 #include "optimizers/greedy_optimizer.hpp"
 #include "optimizers/min_fill_in_optimizer.hpp"
 #include "optimizers/optimizer.hpp"
-#include "optimizers/optimizer_stats.hpp"
-#include "factory.hpp"
+#include "optimizers/tangent_optimizer.hpp"
+#include "util/factory.hpp"
 
-#include <iosfwd>
+#include <map>
 
-// ************************** Forward declarations ************************** //
+// ########################## FORWARD DECLARATIONS ########################## //
 
 namespace admission
 {
 class LowerBound;
 }
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \addtogroup Optimizers
- * @{
- */
+DOXYGEN_MODULE_BEGIN(Optimizers)
 
-/**\brief Branch and bound algorithm.
+/******************************************************************************
+ * @brief Branch and bound algorithm.
  *
  * Has a reference to a class that computes a lower bound.
  * And a reference to a class that removes eliminations from
  * a set of possible eliminations.
- */
+ ******************************************************************************/
 class BranchAndBound : public Optimizer
 {
  public:
-  /// Make the base class available.
+  //! Make the base class available.
   typedef Optimizer Base;
-  /// Make the transitive base class available.
+  //! Make the transitive base class available.
   typedef typename Base::AbstractBase AbstractBase;
 
-  ///\name Constructors & Destructors.
-  ///@{
-  BranchAndBound(const LowerBound& lbound)
-      : _lbound(&lbound),
-        _parallel_depth(1),
-        _glob_opt_s(OpSequence::make_max())
-  {}
+  //! Default contructor of BranchAndBound.
+  BranchAndBound();
 
-  BranchAndBound()
-      : _lbound(nullptr),
-        _parallel_depth(1),
-        _glob_opt_s(OpSequence::make_max())
-  {}
+  //! Contructor of BranchAndBound with a given lower bound.
+  BranchAndBound(const LowerBound& lbound);
 
-  virtual ~BranchAndBound() override {}
+  //! Default destructor of BranchAndBound.
+  virtual ~BranchAndBound() override = default;
 
-  ///@}
+  // -------------------------- Optimizer settings -------------------------- //
+  DOXYGEN_GROUP_BEGIN(Optimizer settings, )
 
-  /// Reset the optimal soluton cost and the counters.
-  virtual void reset() override
-  {
-    _glob_opt_s = OpSequence::make_max();
-    Base::reset();
-  }
+  //! Reset the optimal soluton cost and the counters.
+  virtual void reset() override final;
 
-  /// BranchAndBound has a LowerBound.
-  virtual bool has_lower_bound() override final
-  {
-    return true;
-  }
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
 
-  /// BranchAndBound has a LowerBound.
-  virtual bool is_parallel() override final
-  {
-    return true;
-  }
+  // ------------- Override functions to query certain members -------------- //
+  DOXYGEN_GROUP_BEGIN(Override functions to query certain members, )
 
-  /// Set the LowerBound.
-  virtual void set_lower_bound(admission::LowerBound& e) override final
-  {
-    _lbound = &e;
-  }
+  //! BranchAndBound has a LowerBound.
+  virtual bool has_lower_bound() override final;
 
-  /// Set the LowerBound.
-  virtual void set_lower_bound(admission::LowerBound* e) override final
-  {
-    set_lower_bound(*e);
-  }
+  //! BranchAndBound has a LowerBound.
+  virtual bool is_parallel() override final;
 
-  /// Set the depth of task spawning in the openMP task directive.
-  virtual void set_parallel_depth(const plength_t d) override final
-  {
-    _parallel_depth = d;
-  }
+  //! Set the LowerBound.
+  virtual void set_lower_bound(admission::LowerBound& e) override final;
 
-  /// Return a pointer to the LowerBound.
-  virtual const LowerBound* get_lower_bound() override final
-  {
-    return _lbound;
-  }
+  //! Set the LowerBound.
+  virtual void set_lower_bound(admission::LowerBound* e) override final;
 
-  /**\brief Override the virtual solve function.
-   *
-   * @param[in] g FaceDAG& The input.
-   * @returns OpSequence The optimal sequence.
-   */
-  virtual OpSequence solve(FaceDAG& g) const override;
+  //! Set the depth of task spawning in the openMP task directive.
+  virtual void set_parallel_depth(const plength_t d) override final;
 
-  /**\brief Our own solve function, calling itself recursively.
-   *
-   * @param[in] g FaceDag& The input.
-   * @param[in] cost_until_now flop_t Reference for comparison of global optima.
-   * @param[in] parallel_depth flop_t Know the depth of recursion to switch openMP task parallelisation.
-   * @param[in] source VertexDesc Current Vertex in the MetaDAG.
-   */
-  OpSequence solve(
+  //! Return a pointer to the LowerBound.
+  virtual const LowerBound* get_lower_bound() override final;
+
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
+
+  // ---------------------------- Main interface ---------------------------- //
+  DOXYGEN_GROUP_BEGIN(Main interface, )
+
+  //! Our own solve function, calling itself recursively.
+  OpSequence branch_and_bound_solve(
       FaceDAG& g, const OpSequence solution_until_now,
       const flop_t parallel_depth, const VertexDesc source) const;
 
+  //! Override the virtual solve function.
+  virtual OpSequence solve(FaceDAG& g) const override final;
+
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
+
  protected:
-  /**\brief Traverses all operations on a face DAG and executes
-   *  callables on them. */
+  // ---------------------- Internal solution helpers ----------------------- //
+  DOXYGEN_GROUP_BEGIN(Internal solution helpers, )
+
+  //! Traverses all possible preaccumulations and eliminations (operations)
+  //! on a face DAG. For each operation, it performs some task specified
+  //! by the callables passed to it.
   template<typename V_ACTION, typename E_ACTION>
   void traverse_elims(const FaceDAG&, V_ACTION&, E_ACTION&) const;
 
-  /**\brief Updates the global optimum of the branch and bound
-   * with a new solution candidate. */
-  ADM_ALWAYS_INLINE
-  bool update_global_opt(const OpSequence& s) const
-  {
-    bool updated = false;
-    if (s.cost() < _glob_opt_s.cost())
-    {
-      _glob_opt_s = s;
-      this->_stats.add(GlobUpdate);
-      updated = true;
-      std::ofstream o("adm_glob_opt_s");
-      s.write(o);
-      o.close();
-    }
-    return updated;
-  }
+  //! Updates the global optimum of the branch and bound
+  //! with a new solution candidate.
+  bool update_global_opt(const OpSequence& s) const;
 
-  /// To find greedy solutions.
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
+
+  //! To find tangent-mode based solutions.
+  admission::TangentOptimizer _tangent_optimizer;
+
+  //! To find adjoint-mode based solutions.
+  admission::AdjointOptimizer _adjoint_optimizer;
+
+  //! To find greedy solutions.
   admission::GreedyOptimizer _greedy_optimizer;
 
-  /// To find min-fill-in solutions.
+  //! To find min-fill-in solutions.
   admission::MinFillInOptimizer _min_fill_in_optimizer;
 
-  /// Estimate the search space size.
+  //! Estimate the search space size.
   mutable admission::Estimator _est;
 
-  /// Pointer to the LowerBound.
+  //! Pointer to the LowerBound.
   const admission::LowerBound* _lbound;
 
-  /// The maximum task-spawning depth.
+  //! The maximum task-spawning depth.
   plength_t _parallel_depth;
 
-  /// Global optimal sequence allowing to compare results bewteen threads.
+  //! Global optimal sequence allowing to compare results bewteen threads.
   mutable admission::OpSequence _glob_opt_s;
 };
 
-ADM_REGISTER_TYPE(BranchAndBound, BranchAndBound);
+ADM_REGISTER_TYPE(BranchAndBound, BranchAndBound)
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(Optimizers)
 
 }  // end namespace admission
 
-#endif  // BRANCH_AND_BOUND_HPP
+// ################ INCLUDE TEMPLATE AND INLINE DEFINITIONS ################# //
+
+#include "optimizers/impl/branch_and_bound.hpp"  // IWYU pragma: export
+
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_OPTIMIZERS_BRANCH_AND_BOUND_HPP_

@@ -1,4 +1,4 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/generator.hpp"
 
@@ -12,23 +12,66 @@
 #include <stdexcept>
 #include <string>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-template<typename Graph>
-size_t GraphGenerator<Graph>::asc_dist(size_t min, size_t max)
+/******************************************************************************
+ * @brief Constructor of GraphGeneratorProperties.
+ *
+ * Registers the generator properties.
+ ******************************************************************************/
+GraphGeneratorProperties::GraphGeneratorProperties()
 {
-  if (max < min)  // Assure argument correctnes.
-  {
-    throw std::runtime_error(
-        "Invalid range [" + std::to_string(min) + "," + std::to_string(max) +
-        "]");
-  }
-  return min + dist(1 + max - min);
+  register_property(
+      num_vertices, "num_vertices", "Number of vertices in the DAG.");
+  register_property(
+      num_intermediate_vertices, "num_intermediate_vertices",
+      "Number of intermediate vertices in the DAG. Must be smaller than "
+      "NumVertices-2.");
+  register_property(
+      coeff_const, "coeff_const",
+      "Parameter of the probability density function of the distance spanned "
+      "by an edge. Const distribution.");
+  register_property(
+      coeff_ascending, "coeff_ascending",
+      "Parameter of the probability density function of the distance spanned "
+      "by an edge. Ascending probability.");
+  register_property(
+      coeff_descending, "coeff_descending",
+      "Parameter of the probability density function of the distance spanned "
+      "by an edge. Descending probability.");
+  register_property(
+      coeff_sin, "coeff_sin",
+      "Parameter of the probability density function of the distance spanned "
+      "by an edge. Modified sine wave probability.");
+  register_property(
+      max_vertex_size, "max_vertex_size",
+      "Max vector size of a vertex. Actual size is randomly chosen in [1, "
+      "MaxVertexSize].");
+  register_property(
+      max_in_out, "max_in_out",
+      "Maximal desired number of in-edges and out-edges of any vertex. "
+      "Actual number of in-edges of intermediate vertex i may be in [1, "
+      "i-1].");
+  register_property(
+      cost_scaling, "cost_scaling",
+      "Scale the max value for the random cost generator relatively to "
+      "vertex sizes.");
 }
 
+/******************************************************************************
+ * @brief Generates a weighted discrete distribution.
+ *
+ * Generates a weighted discrete distribution where
+ * all randomly generated values are within the
+ * range [min, max] and the probability density
+ * function is controlled by the parameter set _p.
+ *
+ * @param[in] min lower bound of the range
+ * @param[in] max upper bound of the range
+ ******************************************************************************/
 template<typename Graph>
 size_t GraphGenerator<Graph>::desc_dist(size_t min, size_t max)
 {
@@ -41,17 +84,54 @@ size_t GraphGenerator<Graph>::desc_dist(size_t min, size_t max)
   return max - dist(1 + max - min);
 }
 
-/** Algorithm:
- *  Create all vertices. The vertex indices provide the odering of the graph
- *  i.e. edges (i,j) can only connect vertices i,j for which i < j.
+/******************************************************************************
+ * @brief Generates the mirrored weighted discrete distribution.
  *
- *  Decide on a randum number of desired in- and out-edges of each vertex.
+ * Generates the mirrored weighted discrete distribution,
+ * where the probability density function is flipped between min and max.
+ * All randomly generated values are within the range [min, max].
  *
- *  Connect all vertices according to the boundaries for the number of edges.
- *  The parameter _max_in_out determines the _desired_in and _desired_out
- *  property, but not neccesarily the the actual number of in- and out-edges
- *  of a vertex. It may happen that out_degree(i, g) > _desired_out[i].
- */
+ * @param[in] min lower bound of the range
+ * @param[in] max upper bound of the range
+ ******************************************************************************/
+template<typename Graph>
+size_t GraphGenerator<Graph>::asc_dist(size_t min, size_t max)
+{
+  if (max < min)  // Assure argument correctnes.
+  {
+    throw std::runtime_error(
+        "Invalid range [" + std::to_string(min) + "," + std::to_string(max) +
+        "]");
+  }
+  return min + dist(1 + max - min);
+}
+
+/******************************************************************************
+ * @brief Constructor initializing the properties and the random devices.
+ *
+ * @param[in] p const GraphGeneratorProperties& to use.
+ ******************************************************************************/
+template<typename Graph>
+GraphGenerator<Graph>::GraphGenerator(const GraphGeneratorProperties& p)
+    : _p(p), _gen(_rd()), _gen2(_rd())
+{}
+
+/******************************************************************************
+ * @brief Generates the structure of a DAG, satisfying all constraints
+ *        imposed by _p.
+ *
+ * Create all vertices. The vertex indices provide the odering of the graph
+ * i.e. edges (i,j) can only connect vertices i,j for which i < j.
+ *
+ * Decide on a randum number of desired in- and out-edges of each vertex.
+ *
+ * Connect all vertices according to the boundaries for the number of edges.
+ * The parameter _max_in_out determines the _desired_in and _desired_out
+ * property, but not neccesarily the the actual number of in- and out-edges
+ * of a vertex. It may happen that out_degree(i, g) > _desired_out[i].
+ *
+ * @param[inout] g Graph& the DAG we are building.
+ ******************************************************************************/
 template<typename Graph>
 void GraphGenerator<Graph>::generate_DAG(Graph& g)
 {
@@ -85,8 +165,9 @@ void GraphGenerator<Graph>::generate_DAG(Graph& g)
     _desired_in[i] = 0;
 
     // Minimal vertices have
-    //  at least 1, maximum min{num_intermediate_vertices, max_in_out} successors,
-    //  because we forbid edges between minimal and maximal vertices.
+    //  at least 1, maximum min{num_intermediate_vertices, max_in_out}
+    //  successors, because we forbid edges between minimal and maximal
+    //  vertices.
     _desired_out[i] = dist_t<size_t>(
         1, std::min(_p.num_intermediate_vertices, _p.max_in_out))(_gen);
 
@@ -105,8 +186,9 @@ void GraphGenerator<Graph>::generate_DAG(Graph& g)
     // ie. (i,j) is an edge only if i < j.
     _desired_in[i] = dist_t<size_t>(1, std::min(i, _p.max_in_out))(_gen);
 
-    // An intermediate vertex i has at least 1 and max min{max_in_out, num_vertices - 1 - i}
-    // successotrs, because (i, j) is an edge only if i < j.
+    // An intermediate vertex i has at least 1 and max min{max_in_out,
+    // num_vertices - 1 - i} successotrs, because (i, j) is an edge only if i <
+    // j.
     _desired_out[i] = dist_t<size_t>(
         1, std::min(_p.num_vertices - i - 1, _p.max_in_out))(_gen);
 
@@ -122,8 +204,9 @@ void GraphGenerator<Graph>::generate_DAG(Graph& g)
 
   for (size_t i = num_min_int; i < num_min_int + num_max; ++i)
   {
-    // A maximal vertex i has min 1 max min{max_in_out, num_intermediate_vertices}
-    // predeccessors because we forbid edges connecting minimal to maximal vertices.
+    // A maximal vertex i has min 1 max min{max_in_out,
+    // num_intermediate_vertices} predeccessors because we forbid edges
+    // connecting minimal to maximal vertices.
     _desired_in[i] = dist_t<size_t>(
         1, std::min(_p.max_in_out, _p.num_intermediate_vertices))(_gen);
 
@@ -196,6 +279,11 @@ void GraphGenerator<Graph>::generate_DAG(Graph& g)
   }
 }
 
+/******************************************************************************
+ * @brief Annotates a DAG with vertex sizes, model costs, etc.
+ *
+ * @param[inout] g Graph& the DAG we are building.
+ ******************************************************************************/
 template<typename Graph>
 void GraphGenerator<Graph>::annotate_DAG(Graph& g)
 {
@@ -245,6 +333,11 @@ void GraphGenerator<Graph>::annotate_DAG(Graph& g)
   }
 }
 
+/******************************************************************************
+ * @brief Delegates to generate_DAG and annotate_DAG.
+ *
+ * @param[inout] g Graph& the DAG we are building.
+ ******************************************************************************/
 template<typename Graph>
 void GraphGenerator<Graph>::operator()(Graph& g)
 {
@@ -257,3 +350,5 @@ void GraphGenerator<Graph>::operator()(Graph& g)
 template class GraphGenerator<DAG>;
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

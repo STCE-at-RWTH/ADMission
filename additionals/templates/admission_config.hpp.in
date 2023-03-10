@@ -1,19 +1,11 @@
 #ifndef ADMISSION_CONFIG_H
 #define ADMISSION_CONFIG_H
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include <filesystem>
-#include <memory>
 
-// ************************** Forward declarations ************************** //
-
-namespace admission
-{
-class Pattern;
-}
-
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace fs = std::filesystem;
 
@@ -22,13 +14,15 @@ namespace fs = std::filesystem;
 #define ADM_STATS 1
 #endif
 
-/** \enum adm_debug_t
- *  Enum for selecting different debug information to be printed.
- *  For each category, we set a different bit of an integer value to 1,
- *  such that their additin can be traced. Therefore a value should never
- *  be added twice. Maximum safe number of categories is 16, limited by the
+/******************************************************************************
+ * @enum adm_debug_t
+ *
+ * Enum for selecting different debug information to be printed.
+ * For each category, we set a different bit of an integer value to 1,
+ * such that their additin can be traced. Therefore a value should never
+ * be added twice. Maximum safe number of categories is 16, limited by the
  * guaranteed number of bits in int.
- */
+ ******************************************************************************/
 enum adm_debug_t : int
 {
   always_v = 0,
@@ -36,15 +30,14 @@ enum adm_debug_t : int
   dag_generator_v = 2,
   eliminate_edge_v = 4,
   eliminate_edge_detail_v = 8,
-  optimiser_v = 16,
-  pattern_op_v = 32,
-  lower_bounds_v = 64,
-  estimator_v = 128,
-  none_v = 256
+  optimizer_v = 16,
+  lower_bounds_v = 32,
+  estimator_v = 64,
+  none_v = 128
 };
 
-// Selects which debug information to write. Just add them using + :)
-const int adm_debug = none_v /* eliminate_edge_v + eliminate_edge_detail_v*/;
+// Selects which debug information to write. Just add them using +
+const int adm_debug = none_v;
 
 #define ADM_DEBUG(x)                                                           \
   if constexpr ((adm_debug & x) == x)                                          \
@@ -54,36 +47,27 @@ const int adm_debug = none_v /* eliminate_edge_v + eliminate_edge_detail_v*/;
   if constexpr ((adm_debug & x) == x)                                          \
   std::cout
 
-/** \namespace admission
- *  \brief Main namespace of thesis project ad-mission
- *
- *  Main namespace of thesis project ad-mission.
- *  Contains a set of functions operating on boost graph types
- *  and solver classes for finding optimal face-eliminations
- *  sequences on DAGs.
- */
 namespace admission
 {
 
-using pattern_p = std::shared_ptr<Pattern>;
-
-/// For counting operations of the optimiser.
+//! For counting operations of the optimiser.
 using count_t = long long unsigned int;
 
-/// For keeping track of the solution. Signed for compatibility with graphml
-/// format.
+//! For keeping track of the solution. Signed for compatibility with graphml
+//! format.
 using flop_t = long int;
 
-/// For computing stuff from the structure of a graph.
+//! For computing stuff from the structure of a graph.
 using plength_t = unsigned int;
 
-/// for indexing edges and vertices.
+//! For indexing edges and vertices.
 using index_t = int;
 
-/** \enum dir_t
- *  \brief Defines the different modes and directions of
- *         accumulation and elimination operations on FaceDAGs.
- */
+/******************************************************************************
+ * @enum dir_t
+ * @brief Defines the different modes and directions of
+ *        accumulation and elimination operations on FaceDAGs.
+ ******************************************************************************/
 enum dir_t : int
 {
   MUL,
@@ -91,17 +75,11 @@ enum dir_t : int
   ADJ
 };
 
-/// Standard path< to read graphs from. Used in unit tests.
+//! Standard path< to read graphs from. Used in unit tests.
 static fs::path graph_read_path = "@ADM_GRAPH_READ_PATH@";
 
-/// Standard path to write graphs to. Used in unit tests.
+//! Standard path to write graphs to. Used in unit tests.
 static fs::path graph_write_path = "@ADM_GRAPH_WRITE_PATH@";
-
-/// Standard path to read patterns from. Used in unit tests.
-static fs::path pattern_read_path = "@ADM_PATTERN_READ_PATH@";
-
-/// Standard path to write patterns to. Used in unit tests.
-static fs::path pattern_write_path = "@ADM_PATTERN_WRITE_PATH@";
 
 }  // end namespace admission
 

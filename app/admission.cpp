@@ -1,36 +1,36 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "admission_config.hpp"
 #include "graph/DAG.hpp"
 #include "graph/face_dag.hpp"
 #include "graph/join.hpp"
 #include "graph/read_graph.hpp"
-#include "graph/tikz.hpp"
 #include "lower_bounds/lower_bound.hpp"
 #include "lower_bounds/simple_min_acc_cost_bound.hpp"
+#include "operations/elimination_algorithms.hpp"
+#include "operations/global_modes.hpp"
 #include "operations/op_sequence.hpp"
 #include "optimizers/all_optimizers.hpp"
 #include "optimizers/optimizer.hpp"
-#include "elimination_algorithm.hpp"
-#include "factory.hpp"
-#include "global_modes.hpp"
-#include "properties.hpp"
+#include "util/factory.hpp"
+#include "util/openmp.hpp"
+#include "util/properties.hpp"
 
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <omp.h>
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
-/**Stores all relevant information for reading a DAG from memory
+/******************************************************************************
+ * Stores all relevant information for reading a DAG from memory
  * and solving JA on it. Details of the single parameters' purpose
  * can be found in their respective registration.
- */
+ ******************************************************************************/
 class SolveProperties : public admission::Properties
 {
  public:
@@ -41,50 +41,52 @@ class SolveProperties : public admission::Properties
   size_t n_threads = 1;
   size_t n_levels = 1;
   bool diagnostics = false;
-  bool join_vertices = true;
+  bool join_vertices = false;
   bool preaccumulate_all = false;
   double solution_output_interval = 1.0;
   bool human_readable = true;
 
   SolveProperties()
   {
-    register_property(graph_path, "graph_path", "Path to the DAG.");
+    register_property(graph_path, "dag", "Path to the DAG.");
     register_property(
-        optimizer_name, "optimizer_name",
-        "Identifier of the optimizer to solve FE.");
+        optimizer_name, "method", "Identifier of the optimizer to solve FE.");
     register_property(
         n_threads, "n_threads",
-        "Max number of threads to use in a parallel optimizer and parallel "
-        "sparsity pattern computation.");
-    register_property(
-        n_levels, "thread_spawn_depth",
-        "Max depth of the search tree in which searching of branches is "
-        "delegated to OpenMP tasks.");
-    register_property(
-        diagnostics, "print_diagnostics",
-        "Enable diagnostic output of branch and bound.");
-    register_property(
-        join_vertices, "join_vertices",
-        "Join vertices with identical predecessor and successor sets before "
-        "solving.");
-    register_property(
-        preaccumulate_all, "preaccumulate_all",
-        "Will preaccumulate all Jacobians and solve JA for the preaccumulated "
-        "DAG without tan/adj models.");
-    register_property(
-        solution_output_interval, "solution_output_interval",
-        "Select the frequency of solution updates to write. Defalt is 1s.");
-    register_property(
-        human_readable, "human_readable_output",
-        "Print solution update as a single line or in log style.");
+        "Max number of threads to use in a parallel optimizer");
+    // register_property(
+    //     n_levels, "thread_spawn_depth",
+    //     "Max depth of the search tree in which searching of branches is "
+    //     "delegated to OpenMP tasks.");
+    // register_property(
+    //     diagnostics, "print_diagnostics",
+    //     "Enable diagnostic output of branch and bound.");
+    // register_property(
+    //     join_vertices, "join_vertices",
+    //     "Join vertices with identical predecessor and successor sets before "
+    //     "solving.");
+    // register_property(
+    //     preaccumulate_all, "preaccumulate_all",
+    //     "Will preaccumulate all Jacobians and solve JA for the preaccumulated
+    //     " "DAG without tan/adj models.");
+    // register_property(
+    //     solution_output_interval, "solution_output_interval",
+    //     "Select the frequency of solution updates to write. Defalt is 1s.");
+    // register_property(
+    //     human_readable, "human_readable_output",
+    //     "Print solution update as a single line or in log style.");
   }
 };
 
-/**Interface for solving
- * matrix free   vector face   elimination
- * m      f      v      f      e
+/******************************************************************************
+ * Interface for solving
+ * matrix free vector face elimination
+ * m      f    v      f    e
  * on a DAG.
- */
+ *
+ * @param[in] argc Number of command line arguments.
+ * @param[in] argv Vector of command line arguments.
+ ******************************************************************************/
 int main(int argc, char* argv[])
 {
   SolveProperties p;
@@ -128,19 +130,19 @@ int main(int argc, char* argv[])
     admission::join_vertices(g);
   }
 
-  std::cout << "Printing DAG to TikZ for you...\n";
+  // std::cout << "Printing DAG to TikZ for you...\n";
 
-  std::ofstream o("admission_input.tex");
-  o << "\\documentclass{standalone}" << std::endl;
-  o << "\\usepackage{graphicx}" << std::endl;
-  o << "\\usepackage{tikz}" << std::endl;
-  o << "\\usetikzlibrary{shapes,arrows,automata,decorations.pathreplacing,"
-       "angles,quotes}"
-    << std::endl;
-  o << "\\begin{document}" << std::endl;
-  admission::write_tikz(o, g);
-  o << "\\end{document}" << std::endl;
-  o.close();
+  // std::ofstream o("admission_input.tex");
+  // o << "\\documentclass{standalone}" << std::endl;
+  // o << "\\usepackage{graphicx}" << std::endl;
+  // o << "\\usepackage{tikz}" << std::endl;
+  // o << "\\usetikzlibrary{shapes,arrows,automata,decorations.pathreplacing,"
+  //      "angles,quotes}"
+  //   << std::endl;
+  // o << "\\begin{document}" << std::endl;
+  // admission::write_tikz(o, g);
+  // o << "\\end{document}" << std::endl;
+  // o.close();
 
   // Build a FaceDAG out of the parsed graph.
   auto g_f = admission::make_face_dag(g);
@@ -151,7 +153,6 @@ int main(int argc, char* argv[])
   {
     s_mm = admission::global_preaccumulation_ops(*g_f);
     admission::preaccumulate_all(*g_f, true);
-    std::cout << "Local Preaccumulation cost: " << s_mm.cost() << "fma\n";
   }
 
   // Compute the cost of global modes.
@@ -160,11 +161,11 @@ int main(int argc, char* argv[])
 
   // Create an optimizer.
   admission::Optimizer* op;
-  static auto optimizer_factory = admission::OptimizerFactory::instance();
+  auto& optimizer_factory = admission::OptimizerFactory::instance();
 
   try
   {
-    op = optimizer_factory->construct(p.optimizer_name);
+    op = optimizer_factory.construct(p.optimizer_name);
   }
   catch (admission::KeyNotRegisteredError& tnr)
   {
@@ -184,21 +185,17 @@ int main(int argc, char* argv[])
   if (op->is_parallel())
   {
     op->set_parallel_depth(p.n_levels);
-    omp_set_num_threads(p.n_threads);
+    admission::set_num_threads(p.n_threads);
   }
   op->set_diagnostics(p.diagnostics);
 
   // Solve and write the solution and timings to console.
-  std::cout << "Planning AD Mission...\n";
-
-  auto time = omp_get_wtime();
+  auto time = admission::get_wtime();
   auto seq = op->solve(*g_f);
-  time = omp_get_wtime() - time;
-  std::cout << std::endl
-            << "Done after " << time << "s"
-            << "\n\n"
-            << "Op |Dir|Where|c(fma)"
-            << "\n";
+  time = admission::get_wtime() - time;
+  std::cout << "elapsed time: " << time << "s\n\n"
+            << "elimination sequence\n"
+            << "  (operation mode target cost):\n";
   seq.write(std::cout);
   std::cout << "\n";
 
@@ -206,19 +203,19 @@ int main(int argc, char* argv[])
   seq.write(sof);
   sof.close();
 
+  if (p.preaccumulate_all == true)
+  {
+    std::cout << "local preaccumulation cost: " << s_mm.cost() << "\n";
+  }
+  std::cout << "dense tangent cost: " << c_t << "\n"
+            << "dense adjoint cost: " << c_a << "\n"
+            << "optimized cost: " << seq.cost() << "\n\n"
+            << std::flush;
+
   if (dynamic_cast<admission::BranchAndBound*>(op) != nullptr)
   {
     op->write(std::cout);
   }
-
-  if (p.preaccumulate_all == true)
-  {
-    std::cout << "Local Preaccumulation cost: " << s_mm.cost() << "fma\n";
-  }
-  std::cout << "Global tangent cost: " << c_t << "fma\n"
-            << "Global adjoint cost: " << c_a << "fma\n"
-            << "Optimized cost: " << seq.cost() << "fma\n"
-            << "Operations: " << seq.size() << std::endl;
 
   if (p.diagnostics)
   {

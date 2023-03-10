@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key id="has_jacobian" for="edge" attr.name="has_jacobian" attr.type="boolean" />
+  <key id="adjoint_cost" for="edge" attr.name="adjoint_cost" attr.type="long" />
+  <key id="tangent_cost" for="edge" attr.name="tangent_cost" attr.type="long" />
+  <key id="has_model" for="edge" attr.name="has_model" attr.type="boolean" />
+  <key id="index" for="node" attr.name="index" attr.type="long" />
+  <key id="size" for="node" attr.name="size" attr.type="long" />
+  <graph id="G" edgedefault="directed" parse.nodeids="free" parse.edgeids="canonical" parse.order="nodesfirst">
+    <node id="rAU">
+      <data key="index">7</data>
+      <data key="size">12225</data>
+    </node>
+    <node id="HbyA">
+      <data key="index">8</data>
+      <data key="size">24450</data>
+    </node>
+    <node id="U_tmp">
+      <data key="index">9</data>
+      <data key="size">24450</data>
+    </node>
+    <node id="p_tmp">
+      <data key="index">10</data>
+      <data key="size">12225</data>
+    </node>
+    <node id="phiHbyA">
+      <data key="index">11</data>
+      <data key="size">24170</data>
+    </node>
+    <node id="pEqn_flux">
+      <data key="index">12</data>
+      <data key="size">24170</data>
+    </node>
+    <node id="p_out_prime">
+      <data key="index">13</data>
+      <data key="size">12225</data>
+    </node>
+    <node id="U_out">
+      <data key="index">14</data>
+      <data key="size">24450</data>
+    </node>
+    <node id="p_out">
+      <data key="index">15</data>
+      <data key="size">12225</data>
+    </node>
+    <node id="phi_out">
+      <data key="index">16</data>
+      <data key="size">24170</data>
+    </node>
+
+    <!-- calc_phiHbyA -->
+    <edge id="17" source="HbyA" target="phiHbyA">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">353</data>
+      <data key="tangent_cost">71</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="18" source="U_tmp" target="phiHbyA">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">353</data>
+      <data key="tangent_cost">71</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="19" source="p_tmp" target="phiHbyA">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">353</data>
+      <data key="tangent_cost">71</data>
+      <data key="has_model">1</data>
+    </edge>
+
+    <!-- solvP -->
+    <edge id="20" source="rAU" target="pEqn_flux">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">74313</data>
+      <data key="tangent_cost">14863</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="21" source="phiHbyA" target="pEqn_flux">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">74313</data>
+      <data key="tangent_cost">14863</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="22" source="p_tmp" target="pEqn_flux">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">74313</data>
+      <data key="tangent_cost">14863</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="23" source="rAU" target="p_out_prime">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">74313</data>
+      <data key="tangent_cost">14863</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="24" source="phiHbyA" target="p_out_prime">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">74313</data>
+      <data key="tangent_cost">14863</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="25" source="p_tmp" target="p_out_prime">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">74313</data>
+      <data key="tangent_cost">14863</data>
+      <data key="has_model">1</data>
+    </edge>
+
+    <!-- correct_Momentum -->
+    <edge id="26" source="rAU" target="U_out">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">502</data>
+      <data key="tangent_cost">100</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="27" source="HbyA" target="U_out">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">502</data>
+      <data key="tangent_cost">100</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="28" source="p_out_prime" target="U_out">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">502</data>
+      <data key="tangent_cost">100</data>
+      <data key="has_model">1</data>
+    </edge>
+
+    <!-- calc_phi -->
+    <edge id="29" source="phiHbyA" target="phi_out">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">142</data>
+      <data key="tangent_cost">29</data>
+      <data key="has_model">1</data>
+    </edge>
+    <edge id="30" source="pEqn_flux" target="phi_out">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">142</data>
+      <data key="tangent_cost">29</data>
+      <data key="has_model">1</data>
+    </edge>
+
+    <!-- copy_p -->
+    <edge id="31" source="p_out_prime" target="p_out">
+      <data key="has_jacobian">0</data>
+      <data key="adjoint_cost">0</data>
+      <data key="tangent_cost">0</data>
+      <data key="has_model">1</data>
+    </edge>
+  </graph>
+</graphml>

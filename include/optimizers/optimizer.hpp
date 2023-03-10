@@ -1,177 +1,160 @@
-#ifndef OPTIMIZER_HPP
-#define OPTIMIZER_HPP
+#ifndef ADM_INC_OPTIMIZERS_OPTIMIZER_HPP_
+#define ADM_INC_OPTIMIZERS_OPTIMIZER_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "admission_config.hpp"
 #include "graph/DAG.hpp"
+#include "misc/doxygen.hpp"
 #include "operations/op_sequence.hpp"
 #include "optimizers/optimizer_stats.hpp"
-#include "factory.hpp"
+#include "util/factory.hpp"
 
 #include <filesystem>
 #include <iostream>
 
-// ************************** Forward declarations ************************** //
+// ########################## FORWARD DECLARATIONS ########################## //
 
 namespace admission
 {
 class LowerBound;
 }
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \defgroup Optimizers Optimizers. Algorthimgs for solving Jacobian Accumulation on a FaceDAG.
- * \addtogroup Optimizers
- * \ @{
- */
+DOXYGEN_MODULE_BEGIN(Optimizers)
 
-/** \brief Abstract optimizer class.
- */
+/******************************************************************************
+ * @brief Abstract optimizer class.
+ ******************************************************************************/
 class Optimizer
 {
  public:
-  /// Trivial typedef: This is the transitive base of itself.
+  //! Trivial typedef: This is the transitive base of itself.
   typedef Optimizer AbstractBase;
 
  public:
-  ///\name Constructor and Destructor.
-  ///@{
-  Optimizer() {}
+  //! Trivial default constructor.
+  Optimizer() = default;
 
-  virtual ~Optimizer() {}
+  //! Trivial destructor.
+  virtual ~Optimizer() = default;
 
-  ///@}
+  // -------------------------- Optimizer settings -------------------------- //
+  DOXYGEN_GROUP_BEGIN(Optimizer settings, )
 
-  ///\name Optimizer settings.
-  ///@{
+  //! Turn on tracking of the search space and writing intermediate solutions.
+  virtual void set_diagnostics(bool on);
 
-  /// Turn on tracking of the search space and writing intermediate solutions.
-  virtual void set_diagnostics(bool on)
-  {
-    _diagnostics = on;
-  }
+  //! Set the interval of writing single-line output.
+  virtual void set_output_interval(double t);
 
-  virtual void set_output_interval(double t)
-  {
-    _interval = t;
-  }
+  //! Set the mode of the output to human readable or shorter.
+  virtual void set_output_mode(bool hr);
 
-  virtual void set_output_mode(bool hr)
-  {
-    _output_mode = hr;
-  }
+  //! Reset the internal elimination and branch/cut counters.
+  virtual void reset();
 
-  /// Reset the internal elimination and branch/cut counters.
-  virtual void reset()
-  {
-    _stats.reset();
-  }
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
 
-  ///@}
+  // -------------- Virtual functions to query certain members -------------- //
+  DOXYGEN_GROUP_BEGIN(Virtual functions to query certain members, )
 
-  ///\name Virtual functions to query certain members.
-  ///@{
-
-  /// Returns true if the optimizer uses a lower bound. Implemented by derived classes.
+  //! Returns true if the optimizer uses a lower bound. Implemented by derived
+  //! classes.
   virtual bool has_lower_bound() = 0;
 
-  /// Returns true if the optimizer can be parallelised. Implemented by derived classes.
+  //! Returns true if the optimizer can be parallelised. Implemented by derived
+  //! classes.
   virtual bool is_parallel() = 0;
 
-  /// Can be used to set the depth of openMP task directive on parallel optimizers. Implemented bt derived classes.
+  //! Can be used to set the depth of openMP task directive on parallel
+  //! optimizers. Implemented bt derived classes.
   virtual void set_parallel_depth(const plength_t d) = 0;
 
-  /// Set the lower bound by reference. Implemented by derived classes.
+  //! Set the lower bound by reference. Implemented by derived classes.
   virtual void set_lower_bound(admission::LowerBound&) = 0;
 
-  /// Set the lower bound by pointer.   Implemented by derived classes.
+  //! Set the lower bound by pointer.   Implemented by derived classes.
   virtual void set_lower_bound(admission::LowerBound*) = 0;
 
-  /// Returns a pointer to the lower bounds. Implemented by derived classes.
+  //! Returns a pointer to the lower bounds. Implemented by derived classes.
   virtual const LowerBound* get_lower_bound() = 0;
 
-  ///@}
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
 
-  ///\name IO.
-  ///@{
-  /**\brief Prints the optimizer's stats
-   *
-   * @param os std::ostream& the stream to write to.
-   */
-  void write(std::ostream& os = std::cout)
-  {
-    _stats.write(os);
-  }
+  // --------------------------------- I/O ---------------------------------- //
+  DOXYGEN_GROUP_BEGIN(I / O, )
 
-  /**\brief Prints the opsimiser's stats in a less verbose form.
-   *
-   * @param os std::ostream& the stream to write to.
-   */
-  void write_log(std::ostream& os = std::cout)
-  {
-    _stats.write_log(os);
-  }
+  //! Prints the optimizer's stats.
+  void write(std::ostream& os = std::cout);
 
-  /**\brief Prints the meta DAG that is build when _diagnostics is turned on.
-   *
-   * @param o reference to an ostream to print to.
-   */
+  //! Prints the opsimiser's stats in a less verbose form.
+  void write_log(std::ostream& os = std::cout);
+
+  //! Prints the meta DAG that is build when _diagnostics is turned on.
   virtual void print_meta_DAG(std::ostream& o = std::cout) const;
 
-  /**\brief Prints the meta DAG that is build when _diagnostics is turned on.
-   *
-   * @param p fs::path of the file to write to.
-   */
+  //! Prints the meta DAG that is build when _diagnostics is turned on.
   virtual void print_meta_DAG(fs::path p) const;
-  ///@}
 
-  ///\name Main interface.
-  ///@{
-  /**\brief Solve matrix free vector face elimination on
-   *        a face DAG. Implemented by derived classes.
-   *
-   * @param g Reference to the FaceDAG to solve.
-   * @returns OpSequence the solution.
-   */
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
+
+  // ---------------------------- Main interface ---------------------------- //
+  DOXYGEN_GROUP_BEGIN(Main interface, )
+
+  //! Solve matrix free vector face elimination on
+  //! a face DAG. Implemented by derived classes.
   virtual OpSequence solve(FaceDAG&) const = 0;
-  ///@}
+
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
 
  protected:
-  ///\name Internal solution helpers.
-  ///@{
-  /** \brief  Used to determine whether a DAG is solved.
-   *
-   * @param g FaceDAG& the face DAG to check.
-   * @returns bool true if solved.
-   */
+  // ---------------------- Internal solution helpers ----------------------- //
+  DOXYGEN_GROUP_BEGIN(Internal solution helpers, )
+
+  //! Used to determine whether a DAG is solved.
   bool check_if_solved(const FaceDAG& g) const;
 
+  DOXYGEN_GROUP_END()
+  // ------------------------------------------------------------------------ //
+
  protected:
-  /// Stats to track the branching and cutting behaviour of the Optimizer.
+  //! Stats to track the branching and cutting behaviour of the Optimizer.
   mutable OptimizerStats _stats;
 
-  /// MetaDAG to track the search space exploded. Left empty if diagnostics are turned off.
+  //! MetaDAG to track the search space exploded. Left empty if diagnostics are
+  //! turned off.
   mutable MetaDAG _meta_dag;
 
+  //! @todo
   bool _output_mode = true;
+
+  //! @todo
   double _interval = 1.0;
 
-  /// Diagnostics switch.
+  //! Diagnostics switch.
   bool _diagnostics = false;
 };
 
-/// Make an optimizer factory
+//! Make an optimizer factory.
 using OptimizerFactory = admission::Factory<Optimizer>;
 
-/**
- * \ @}
- */
+DOXYGEN_MODULE_END(Optimizers)
 
 }  // end namespace admission
 
-#endif  // OPTIMIZER_HPP
+// ################ INCLUDE TEMPLATE AND INLINE DEFINITIONS ################# //
+
+#include "optimizers/impl/optimizer.hpp"  // IWYU pragma: export
+
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_OPTIMIZERS_OPTIMIZER_HPP_

@@ -1,58 +1,47 @@
-#ifndef WRITE_GRAPH_HPP
-#define WRITE_GRAPH_HPP
+#ifndef ADM_INC_GRAPH_WRITE_GRAPH_HPP_
+#define ADM_INC_GRAPH_WRITE_GRAPH_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/DAG.hpp"
+#include "misc/doxygen.hpp"
 
 #include <iosfwd>
 #include <string>
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \addtogroup DagIo
- * @{
- */
+DOXYGEN_MODULE_BEGIN(DagIo)
 
 namespace detail
 {
 
-/**\brief Writes an admission::DAG
- * to a file in GRAPHML format.
- *
- * @param[inout] os Reference to the ostream to write to.
- * @param[in] g Reference to the DAG.
- */
+//! Writes an admission::DAG to a file in GRAPHML format.
 void write_graphml(std::ostream& os, admission::DAG& g);
 
-/**\brief Writes an admission::FaceDAG
- * to a file in GRAPHML format.
- *
- * @param[inout] os Reference to the ostream to write to.
- * @param[in] g Reference to the DAG.
- */
+//! Writes an admission::FaceDAG to a file in GRAPHML format.
 void write_graphml(std::ostream& os, admission::FaceDAG& g);
 
 }  // end namespace detail
 
-/**\brief Writes a DAG or a face DAG to
- * a file in GRAPHML format.
- *
- * @tparam Graph the type of the (face) DAG.
- * @param[in] path fs::path to the file we write to.
- * @param[in] g Reference to the DAG.
- */
+//! Writes an admission::DAG to a file as mmchain.
+void write_mmchain(std::ostream& os, admission::DAG& g);
+
+//! Writes a DAG or a face DAG to a file in GRAPHML format.
 template<typename Graph>
 void write_graphml(std::string path, Graph& g);
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(DagIo)
 
 }  // end namespace admission
 
-#endif  // WRITE_GRAPH_HPP
+// ################ INCLUDE TEMPLATE AND INLINE DEFINITIONS ################# //
+
+#include "graph/impl/write_graph.hpp"  // IWYU pragma: export
+
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_GRAPH_WRITE_GRAPH_HPP_

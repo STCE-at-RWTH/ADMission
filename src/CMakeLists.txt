@@ -8,6 +8,9 @@ add_subdirectory(graph)
 # Build ADM lower bounds objects
 add_subdirectory(lower_bounds)
 
+# Build ADM misc objects
+add_subdirectory(misc)
+
 # Build ADM operations objects
 add_subdirectory(operations)
 
@@ -20,6 +23,7 @@ add_subdirectory(optimizers)
 set(_adm_lib_objects
   $<TARGET_OBJECTS:adm_graph_objects>
   $<TARGET_OBJECTS:adm_lower_bounds_objects>
+  $<TARGET_OBJECTS:adm_misc_objects>
   $<TARGET_OBJECTS:adm_operations_objects>
   $<TARGET_OBJECTS:adm_optimizers_objects>)
 

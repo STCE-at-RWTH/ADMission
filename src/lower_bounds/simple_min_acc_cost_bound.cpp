@@ -1,4 +1,4 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "lower_bounds/simple_min_acc_cost_bound.hpp"
 
@@ -15,11 +15,17 @@
 #include <utility>
 #include <vector>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
+/******************************************************************************
+ * @brief Applies the lower bound to a face DAG.
+ *
+ * @param g Reference to the DAG we compute the bound on.
+ * @returns A valid lower bound for matrix-free FE on g.
+ ******************************************************************************/
 flop_t SimpleMinAccCostBound::operator()(const FaceDAG& g) const
 {
 
@@ -69,3 +75,5 @@ flop_t SimpleMinAccCostBound::operator()(const FaceDAG& g) const
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

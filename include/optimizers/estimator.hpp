@@ -1,134 +1,67 @@
-#ifndef ESTIMATOR_HPP
-#define ESTIMATOR_HPP
+#ifndef ADM_INC_OPTIMIZERS_ESTIMATOR_HPP_
+#define ADM_INC_OPTIMIZERS_ESTIMATOR_HPP_
 
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
-#include "admission_config.hpp"
 #include "graph/DAG.hpp"
+#include "misc/doxygen.hpp"
 
-#include <boost/graph/adjacency_list.hpp>
-
-#include <iostream>
-#include <memory>
 #include <stddef.h>
 #include <vector>
 
-// **************************** Header contents ***************************** //
+// ############################# HEADER CONTENTS ############################ //
 
 namespace admission
 {
 
-/**
- * \addtogroup Optimizers
- * \ @{
- */
+DOXYGEN_MODULE_BEGIN(Optimizers)
 
-/**\brief Struct to estimate the length size of a branch and bound search space */
-struct Estimator
+/******************************************************************************
+ * @brief Struct to estimate the size of a branch and bound search space.
+ ******************************************************************************/
+class Estimator
 {
+
+ public:
+  //! Default constructor of Estimator.
+  Estimator() = default;
+
+  //! Default destructor of Estimator.
+  ~Estimator() = default;
+
+  //! Initializes the estimations vector depending on the graph.
+  void init(const FaceDAG& g);
+
+  //! @todo
+  double calc_est(const size_t d);
+
+  //! @todo
+  void add_cut(const size_t d);
+
+  //! @todo
+  void add_sample(const size_t d, const double& v);
+
+ private:
+  /****************************************************************************
+   * @brief Estimate data struct.
+   ****************************************************************************/
   struct Data
   {
+    //! Number of samples.
     size_t n_samples = 0;
-    // size_t n_cut = 0;
+
+    //! Estimate of the search space size.
     double estimate = 1;
   };
 
-  Estimator() = default;
-
-  void init(const FaceDAG& g)
-  {
-    _estimates.reserve(2 * num_edges(g) + num_vertices(g));
-    _estimates.resize(0);
-  }
-
-  double calc_est(const size_t d)
-  {
-    // We first calculate an estimate of the entire search tree without
-    // cutting branches.
-    double est = 1.0;
-    double leaves = 1.0;
-    for (size_t k = d; k < _estimates.size(); ++k)
-    {
-      leaves *= _estimates[k].estimate;
-      est += leaves;
-    }
-    // ADM_DEBUG(estimator_v) << "On level d=" << d << " uncut size=" << est << std::endl;
-
-    // // An then subtract the estimated size of all cut brunches.
-    // std::vector<double> _cuts(_estimates.size(), 1.0);
-    // double est_cut = 1.0;
-    // double est_leaves = 1.0;
-    // double pos_cut = 1.0;
-    // for (size_t n=d; n<_estimates.size(); ++n) {
-    //   for (size_t k=d; k<n+1; ++k) {
-    //     pos_cut *=_estimates[k].estimate;
-    //   }
-    //   for (size_t k=n+1; k<_estimates.size(); ++k) {
-    //     est_leaves *= _estimates[k].estimate;
-    //     est_cut += est_leaves;
-    //   }
-    //   ADM_DEBUG(estimator_v) << "On level n=" << n
-    //     << "average children=" << _estimates[n].estimate
-    //     << " possible cuts= " << pos_cut << " cuts=" << _estimates[n].n_cut
-    //     << " with total size=" << est_cut * _estimates[n].n_cut << std::endl;
-
-    //   est -= est_cut * _estimates[n].n_cut;
-    //   est_cut = 1.0;
-    //   pos_cut = 1.0;
-    //   est_leaves = 1.0;
-    // }
-    ADM_DEBUG(estimator_v) << "On level d=" << d << " cut size=" << est
-                           << std::endl
-                           << std::endl;
-    return est;
-  }
-
-  void add_cut(const size_t d)
-  {
-    #pragma omp critical
-    {
-      size_t& s = _estimates.at(d).n_samples;
-      double& e = _estimates.at(d).estimate;
-      e -= 1.0 / s;
-      if (d < 4)
-      {
-        ADM_DEBUG(estimator_v)
-            << "Removing Branch: depth=" << d << " new avg=" << e << std::endl;
-      }
-    }
-  }
-
-  void add_sample(const size_t d, const double& v)
-  {
-    if (v < 1.0)
-    {
-      return;
-    }
-    #pragma omp critical
-    {
-      if (_estimates.size() <= d)
-      {
-        _estimates.resize(d + 1);
-      }
-      size_t& s = _estimates.at(d).n_samples;
-      double& e = _estimates.at(d).estimate;
-      e = (e * s + v) / (s + 1);
-      if (d < 4)
-      {
-        ADM_DEBUG(estimator_v)
-            << "Adding Estimate: depth=" << d << " value=" << v
-            << " new avg=" << e << std::endl;
-      }
-    }
-  }
-
+  //! Vector of estimates.
   std::vector<Data> _estimates;
 };
 
-/**
- * @}
- */
+DOXYGEN_MODULE_END(Optimizers)
 
 }  // end namespace admission
 
-#endif  // ESTIMATOR_HPP
+// ################################## EOF ################################### //
+
+#endif  // ADM_INC_OPTIMIZERS_ESTIMATOR_HPP_

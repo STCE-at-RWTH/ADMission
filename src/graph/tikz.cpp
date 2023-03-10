@@ -1,4 +1,4 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "graph/tikz.hpp"
 
@@ -13,21 +13,24 @@
 // The drag interface
 #include <drag/drag.hpp>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-/**\brief Generates positions for verties of a (face) DAG
- * by delegating to the external draw tool.
+/******************************************************************************
+ * @brief Generates positions for verties of a (face) DAG
+ *        by delegating to the external draw tool.
  *
  * Using the drag::sugiyama_layout(...) function. We have to
  * copy the input g into a drag::graph before.
- * @param[in] g the (face/meta) DAG.
- * @returns a vector of 2D coordinates for all vertices.
- */
+ *
+ * @tparam Graph Type of the graph.
+ * @param[in] g The (face/meta) DAG.
+ * @returns A vector of 2D coordinates for all vertices.
+ ******************************************************************************/
 template<typename Graph>
-std::vector<std::array<double, 2>> draw(const Graph& g)
+static std::vector<std::array<double, 2>> draw(const Graph& g)
 {
   std::vector<drag::vertex_t> v2v(num_vertices(g));
   drag::graph h;
@@ -60,6 +63,13 @@ std::vector<std::array<double, 2>> draw(const Graph& g)
   return res;
 }
 
+/******************************************************************************
+ * @brief Function to print a DAG to a text-file in TikZ.
+ *
+ * @param[inout] out Reference to a std::ostream to which the tikz code is
+ *                   written.
+ * @param[in] g Const reference to the graph we write.
+ ******************************************************************************/
 void write_tikz(std::ostream& out, const DAG& g)
 {
   auto index = boost::get(boost::vertex_index, g);
@@ -107,6 +117,13 @@ void write_tikz(std::ostream& out, const DAG& g)
   out << "\\end{tikzpicture}";
 }
 
+/******************************************************************************
+ * @brief Function to print a FaceDAG to a text-file in TikZ.
+ *
+ * @param[inout] out Reference to a std::ostream to which the tikz code is
+ *                   written.
+ * @param[in] g const reference to the graph we write.
+ ******************************************************************************/
 void write_tikz(std::ostream& out, const FaceDAG& g)
 {
   auto index = boost::get(boost::vertex_index, g);
@@ -200,6 +217,13 @@ void write_tikz(std::ostream& out, const FaceDAG& g)
   out << "\\end{tikzpicture}";
 }
 
+/******************************************************************************
+ * @brief Function to print a MetaDAG to a text-file in TikZ.
+ *
+ * @param[inout] out Reference to a std::ostream to which the tikz code is
+ *                   written.
+ * @param[in] g const reference to the graph we write.
+ ******************************************************************************/
 void write_tikz(std::ostream& out, const MetaDAG& g)
 {
   auto info = boost::get(boost::vertex_info, g);
@@ -285,3 +309,5 @@ void write_tikz(std::ostream& out, const MetaDAG& g)
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

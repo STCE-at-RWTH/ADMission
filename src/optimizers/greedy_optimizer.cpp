@@ -1,37 +1,39 @@
-// ******************************** Includes ******************************** //
+// ################################ INCLUDES ################################ //
 
 #include "optimizers/greedy_optimizer.hpp"
 
 #include "graph/DAG.hpp"
 #include "graph/tikz.hpp"
+#include "operations/elimination_algorithms.hpp"
 #include "operations/find_eliminations.hpp"
+#include "operations/global_modes.hpp"
 #include "operations/op_sequence.hpp"
-#include "elimination_algorithm.hpp"
-#include "global_modes.hpp"
 
 #include <boost/graph/adjacency_list.hpp>
 
-#include <stddef.h>
 #include <string>
 #include <utility>
 
-// **************************** Source contents ***************************** //
+// ############################ SOURCE CONTENTS ############################# //
 
 namespace admission
 {
 
-OpSequence GreedyOptimizer::solve(FaceDAG& g) const
-{
-  return greedy_solve(g);
-}
+// ------------------- Greedy Optimizer - Main Interface -------------------- //
 
+/******************************************************************************
+ * @brief Recursively get the best elimination for g and apply it.
+ *
+ * @param[in] g Reference to the FaceDAG.
+ * @param[in] diagnostics Whether to write diagnostic output (default: true).
+ ******************************************************************************/
 OpSequence GreedyOptimizer::greedy_solve(FaceDAG& g, bool diagnostics) const
 {
   auto elims = OpSequence::make_empty();
   auto new_elim = OpSequence::make_max();
 
-  size_t n = 0;
-  VertexDesc source, leaf;
+  VertexDesc source = 0;
+  VertexDesc leaf = 0;
   if (_diagnostics && diagnostics)
   {
     source = add_vertex(_meta_dag);
@@ -40,7 +42,6 @@ OpSequence GreedyOptimizer::greedy_solve(FaceDAG& g, bool diagnostics) const
 
   while ((new_elim = get_greedy_elim_on_any_graph(g)).cost() < OpSequence::max)
   {
-    n++;
     new_elim.apply(g);
     elims += std::move(new_elim);
     if (_diagnostics && diagnostics)
@@ -66,12 +67,24 @@ OpSequence GreedyOptimizer::greedy_solve(FaceDAG& g, bool diagnostics) const
   return elims;
 }
 
-/**
- * Returns either
- * a preaccumulation that merges two vertices
- * or
- * the cheaptest elimination.
- */
+/******************************************************************************
+ * @brief Overloaded solve-function calls itself recursively.
+ *
+ * @param[in] g Reference to the graph.
+ ******************************************************************************/
+OpSequence GreedyOptimizer::solve(FaceDAG& g) const
+{
+  return greedy_solve(g);
+}
+
+// -------------- Greedy Optimizer - Internal solution helpers -------------- //
+
+/******************************************************************************
+ * @brief Returns either a preaccumulation that merges
+ *        two vertices or the cheaptest elimination.
+ * @param g Reference to the face DAG we are searching.
+ * @returns OpSequence containing a single elimination.
+ ******************************************************************************/
 OpSequence GreedyOptimizer::get_greedy_elim_on_any_graph(
     const admission::FaceDAG& g) const
 {
@@ -88,3 +101,5 @@ OpSequence GreedyOptimizer::get_greedy_elim_on_any_graph(
 }
 
 }  // end namespace admission
+
+// ################################## EOF ################################### //

@@ -1,9 +1,0 @@
-num_vertices 20
-num_intermediate_vertices 15
-coeff_const 0.0
-coeff_ascending 0.0
-coeff_descending 1.0
-coeff_sin 0.0
-max_vertex_size 50
-max_in_out 2
-cost_scaling 10
